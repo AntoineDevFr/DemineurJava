@@ -77,8 +77,7 @@ public class Champ {
      */
     public void newPartie(int indexLevel) {
         champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
-        init(0, 0);
-        //display();
+        display();
     }
 
     /**

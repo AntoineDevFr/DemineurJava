@@ -29,6 +29,7 @@ public class Gui extends JPanel implements ActionListener {
          * JPanel CENTER
          */
         majPanelMines();
+        add(panelMines, BorderLayout.CENTER);
 
         /**
          * JPanel NORTH
@@ -73,20 +74,20 @@ public class Gui extends JPanel implements ActionListener {
 
     public void majPanelMines() {
         panelMines.setLayout(new GridLayout(champ.getWidth(), champ.getHeight()));
-        panelMines.setBackground(Color.GRAY);
         for (int i = 0; i < champ.getWidth(); i++) {
             for (int j = 0; j < champ.getHeight(); j++) {
-            JLabel label;
-            if(champ.isMine(i, j)) {
-                label = new JLabel("x");
-                label.setForeground(Color.RED);
-            } else {
-                label = new JLabel(Integer.toString(champ.nbMinesaround(i,j))); 
-            }
-            panelMines.add(label);
+                JPanel casePanel;
+                casePanel = new Case();
+                panelMines.add(casePanel);
             }
         }
-        add(panelMines, BorderLayout.CENTER);
+        // if(champ.isMine(i, j)) {
+            //     label = new JLabel("x");
+            //     label.setForeground(Color.RED);
+            // } else {
+            //     label = new JLabel(Integer.toString(champ.nbMinesaround(i,j))); 
+            // panelMines.add(label);
+        //}
     }
 
     @Override
