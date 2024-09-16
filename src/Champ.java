@@ -11,7 +11,7 @@ public class Champ {
     public Case[][] champCases;
 
     private int []  tabSize = {5, 10, 15};
-    private int []  tabNbMines = {3, 7, 9};
+    private int []  tabNbMines = {3, 7, 20};
 
     Random random = new Random();
     
