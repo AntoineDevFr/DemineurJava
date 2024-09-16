@@ -10,13 +10,14 @@ public class App extends JFrame{
 
     private Champ champ;
     private Gui gui;
-    private int score;
+    //private int score;
     
     App() {
         super("Démineur");
 
         champ = new Champ();
-        champ.init(0, 0);
+        champ.init(Level.EASY.ordinal());
+        champ.display();
 
         gui = new Gui(this, champ);
         setContentPane(gui);
@@ -38,7 +39,7 @@ public class App extends JFrame{
     }
 
     public void newPartie(int indexLevel) {
-        this.score = 0;
+        //this.score = 0;
         champ.newPartie(indexLevel);
         gui.newPartie(indexLevel);
     }

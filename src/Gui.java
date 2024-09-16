@@ -78,16 +78,10 @@ public class Gui extends JPanel implements ActionListener {
             for (int j = 0; j < champ.getHeight(); j++) {
                 JPanel casePanel;
                 casePanel = new Case();
+                casePanel = champ.champCases[i][j];
                 panelMines.add(casePanel);
             }
         }
-        // if(champ.isMine(i, j)) {
-            //     label = new JLabel("x");
-            //     label.setForeground(Color.RED);
-            // } else {
-            //     label = new JLabel(Integer.toString(champ.nbMinesaround(i,j))); 
-            // panelMines.add(label);
-        //}
     }
 
     @Override
