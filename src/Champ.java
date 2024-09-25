@@ -7,29 +7,32 @@ import java.util.Random;
  */
 
 public class Champ {
-    
-    private final static int DEF_WIDTH = 10;
-    private final static int DEF_HEIGHT = 10;
-    private final static int DEF_NBMINES = 8;
+    private boolean[][] champ;
+   
+    public int customSize;
+    public int customNbMines;
 
-    private boolean[][] champ = new boolean[DEF_WIDTH][DEF_HEIGHT]; 
-    private int []  tabSize = {5, 10, 15};
-    private int []  tabNbMines = {3, 7, 9};
+    private int []  tabSize = {5, 10, 15, customSize};
+    private int []  tabNbMines = {3, 7, 20, customNbMines};
 
+    private int indexLevel = 0;
     Random random = new Random();
     
+    public Champ(App app) {
+    }
+
       /**
      * Initialize the field
      */
-    public void init(int startX, int startY) {
-        for (int n = DEF_NBMINES; n !=0;) {
+    public void init(int indexLevel) {
+        this.indexLevel = indexLevel;
+        tabSize[3] = customSize;
+        tabNbMines[3] = customNbMines;
+        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
+        for (int i = 0; i < tabNbMines[indexLevel]; i++) {
             int x = random.nextInt(champ.length);
             int y = random.nextInt(champ[0].length);
-
-            if(!champ[x][y] && (x != startX || y != startY)) {
-                champ[x][y] = true;
-                n--;
-            }
+            champ[x][y] = true;
         }
     }
 
@@ -72,11 +75,15 @@ public class Champ {
         return n;
     }
 
+    public int getMineCount() {
+        return tabNbMines[indexLevel];
+    }
+
     /**
      * newPartie
      */
     public void newPartie(int indexLevel) {
-        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
+        this.init(indexLevel);
         display();
     }
 
