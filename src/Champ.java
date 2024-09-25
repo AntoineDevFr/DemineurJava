@@ -8,16 +8,13 @@ import java.util.Random;
 
 public class Champ {
     private boolean[][] champ;
-    public Case[][] champCases;
-
+   
     private int []  tabSize = {5, 10, 15};
     private int []  tabNbMines = {3, 7, 20};
 
     Random random = new Random();
-    private App app;
     
     public Champ(App app) {
-        this.app = app;
     }
 
       /**
@@ -29,18 +26,6 @@ public class Champ {
             int x = random.nextInt(champ.length);
             int y = random.nextInt(champ[0].length);
             champ[x][y] = true;
-        }
-
-        champCases = new Case[champ.length][champ[0].length];
-        for (int i = 0; i < champ.length; i++) {
-            for (int j = 0; j < champ[i].length; j++) {
-                champCases[i][j] = new Case(app);
-                if(isMine(i, j)) {
-                    champCases[i][j].setMine(true);
-                } else {
-                    champCases[i][j].setNbMinesAround(String.valueOf(nbMinesaround(i, j)));
-                }
-            }
         }
     }
 

@@ -19,6 +19,11 @@ public class App extends JFrame{
         champ.init(Level.EASY.ordinal());
         champ.display();
 
+        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 600); // Set the size of the window
+        setLocationRelativeTo(null);
+        
         gui = new Gui(this, champ);
         setContentPane(gui);
         
@@ -46,10 +51,10 @@ public class App extends JFrame{
 
     public void gameOver() {
         gui.gameover(); 
-        ImageIcon gameOverIcon = new ImageIcon("game-over.png");
+        Icon gameOverIcon = new ImageIcon("./src/game-over.png");
 
         int response = JOptionPane.showOptionDialog(
-                this,
+                null,
                 "Game Over! Would you like to play again or quit?",
                 "Game Over",
                 JOptionPane.YES_NO_OPTION,
@@ -58,11 +63,14 @@ public class App extends JFrame{
                 new Object[]{"Play Again", "Quit"}, 
                 "Play Again" 
         );
-
         if (response == JOptionPane.YES_OPTION) {
             newPartie(gui.getLevelComboBox().getSelectedIndex());
         } else {
            quit();
         }
+    }
+
+    public void propagation(int x, int y) {
+        gui.propagation(x,y);
     }
 }

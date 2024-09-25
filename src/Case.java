@@ -1,24 +1,31 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.MouseListener;
-
 import javax.swing.JPanel;
 import java.awt.event.MouseEvent;
 import java.awt.Font;
+import javax.swing.*;
+
 
 public class Case extends JPanel implements MouseListener {
     private Color color = Color.gray;
-    private boolean isMine = false;
+    public boolean isMine = false;
     public boolean isFill = true;
+    public int x;
+    public int y;
 
-    private String nbMinesAround = "";
-    private final static int DIM=50 ;
+    Toolkit toolKit = getToolkit();
+
+    public String nbMinesAround = "";
+    private final static int DIM=70 ;
 
     private App app;
 
     public Case (App app) {
         this.app = app;
+        setBorder(BorderFactory.createLineBorder(Color.WHITE));
         setPreferredSize(new Dimension(DIM, DIM)); // taille de la case 
         addMouseListener(this); // ajout listener souris
     }
@@ -41,29 +48,45 @@ public class Case extends JPanel implements MouseListener {
         }
 
         if (!isFill) {
-            gc.setFont(new Font("Arial", Font.BOLD, 20));
+            gc.setFont(new Font("Arial", Font.BOLD, 25));
             gc.setColor(Color.GREEN);
 
             if (this.isMine) {
-                nbMinesAround = "BOOM";
+                gc.drawImage(toolKit.getImage("./src/bombe.png"), 0, 0, this);
             }
 
-            if (nbMinesAround.equals("BOOM")) {
-                gc.setColor(Color.RED); 
+            switch (nbMinesAround) {
+                case "1":
+                    gc.setColor(Color.GREEN);
+                    break;
+                case "2":
+                    gc.setColor(Color.YELLOW);
+                    break;
+                case "3":
+                    gc.setColor(Color.RED);
+                    break;
+                default:
+                    gc.setColor(Color.BLACK);
+                    break;
             }
-           
-            // Centrer le texte dans la case -> CHatgpt
-            int textWidth = gc.getFontMetrics().stringWidth(nbMinesAround);
-            int textHeight = gc.getFontMetrics().getHeight();
-            gc.drawString(nbMinesAround, (getWidth() - textWidth) / 2, (getHeight() + textHeight / 4) / 2);
+
+            if(!this.isMine) {
+                // Centrer le texte dans la case -> CHatgpt
+                int textWidth = gc.getFontMetrics().stringWidth(nbMinesAround);
+                int textHeight = gc.getFontMetrics().getHeight();
+                gc.drawString(nbMinesAround, (getWidth() - textWidth) / 2, (getHeight() + textHeight / 4) / 2);
+            }
+            
         }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        isFill = false;  
+        //isFill = false;  
         if (this.isMine) {
             app.gameOver();
+        } else {
+            app.propagation(x,y);
         }
         repaint();  
     }
