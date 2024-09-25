@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,9 +36,15 @@ public class Gui extends JPanel implements ActionListener {
          * JPanel NORTH
          */
         JPanel panelNorth = new JPanel();
+        panelNorth.setBackground(new Color(60, 63, 65));
 
         JLabel scoreLabel = new JLabel("Score : ");
+        scoreLabel.setForeground(Color.WHITE);
         JLabel levLabel = new JLabel("Level : ");
+        levLabel.setForeground(Color.WHITE);
+
+        scoreValue.setForeground(Color.CYAN);
+
         panelNorth.add(scoreLabel);
         panelNorth.add(scoreValue);
         panelNorth.add(levLabel);
@@ -53,12 +60,15 @@ public class Gui extends JPanel implements ActionListener {
          * JPanel SOUTH
          */
         JPanel panelSouth = new JPanel();
-        
+        panelSouth.setBackground(new Color(43, 43, 43));
+
         buttonQuit = new JButton("Quit");
+        buttonQuit.setBackground(new Color(255, 69, 58));
         buttonQuit.addActionListener(this);
         panelSouth.add(buttonQuit);
 
         buttonNew = new JButton("New");
+        buttonNew.setBackground(new Color(50, 205, 50)); 
         buttonNew.addActionListener(this);
         panelSouth.add(buttonNew);
        
@@ -74,14 +84,22 @@ public class Gui extends JPanel implements ActionListener {
 
     public void majPanelMines() {
         panelMines.setLayout(new GridLayout(champ.getWidth(), champ.getHeight()));
+        panelMines.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
         for (int i = 0; i < champ.getWidth(); i++) {
             for (int j = 0; j < champ.getHeight(); j++) {
-                JPanel casePanel;
-                casePanel = new Case();
-                casePanel = champ.champCases[i][j];
+                JPanel casePanel = champ.champCases[i][j];
+                casePanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
                 panelMines.add(casePanel);
             }
         }
+        panelMines.setBackground(Color.LIGHT_GRAY);
+        panelMines.revalidate(); 
+        panelMines.repaint();
+    }
+
+    public JComboBox<Level> getLevelComboBox() {
+        return levelComboBox;
     }
 
     @Override
@@ -92,6 +110,15 @@ public class Gui extends JPanel implements ActionListener {
         else if (e.getSource() == buttonNew) {
             //On réinitialise le champ
             app.newPartie(levelComboBox.getSelectedIndex());
+        }
+    }
+
+    public void gameover() {
+        for (int i = 0; i < champ.getWidth(); i++) {
+            for (int j = 0; j < champ.getHeight(); j++) {
+                champ.champCases[i][j].isFill = false;
+                champ.champCases[i][j].paintComponent(champ.champCases[i][j].getGraphics());
+            }
         }
     }
 }

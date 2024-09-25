@@ -14,7 +14,12 @@ public class Champ {
     private int []  tabNbMines = {3, 7, 20};
 
     Random random = new Random();
+    private App app;
     
+    public Champ(App app) {
+        this.app = app;
+    }
+
       /**
      * Initialize the field
      */
@@ -29,7 +34,7 @@ public class Champ {
         champCases = new Case[champ.length][champ[0].length];
         for (int i = 0; i < champ.length; i++) {
             for (int j = 0; j < champ[i].length; j++) {
-                champCases[i][j] = new Case();
+                champCases[i][j] = new Case(app);
                 if(isMine(i, j)) {
                     champCases[i][j].setMine(true);
                 } else {

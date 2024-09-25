@@ -15,7 +15,7 @@ public class App extends JFrame{
     App() {
         super("Démineur");
 
-        champ = new Champ();
+        champ = new Champ(this);
         champ.init(Level.EASY.ordinal());
         champ.display();
 
@@ -42,5 +42,27 @@ public class App extends JFrame{
         //this.score = 0;
         champ.newPartie(indexLevel);
         gui.newPartie(indexLevel);
+    }
+
+    public void gameOver() {
+        gui.gameover(); 
+        ImageIcon gameOverIcon = new ImageIcon("game-over.png");
+
+        int response = JOptionPane.showOptionDialog(
+                this,
+                "Game Over! Would you like to play again or quit?",
+                "Game Over",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                gameOverIcon,
+                new Object[]{"Play Again", "Quit"}, 
+                "Play Again" 
+        );
+
+        if (response == JOptionPane.YES_OPTION) {
+            newPartie(gui.getLevelComboBox().getSelectedIndex());
+        } else {
+           quit();
+        }
     }
 }
