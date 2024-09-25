@@ -9,8 +9,11 @@ import java.util.Random;
 public class Champ {
     private boolean[][] champ;
    
-    private int []  tabSize = {5, 10, 15};
-    private int []  tabNbMines = {3, 7, 20};
+    public int customSize;
+    public int customNbMines;
+
+    private int []  tabSize = {5, 10, 15, customSize};
+    private int []  tabNbMines = {3, 7, 20, customNbMines};
 
     private int indexLevel = 0;
     Random random = new Random();
@@ -23,6 +26,8 @@ public class Champ {
      */
     public void init(int indexLevel) {
         this.indexLevel = indexLevel;
+        tabSize[3] = customSize;
+        tabNbMines[3] = customNbMines;
         champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
         for (int i = 0; i < tabNbMines[indexLevel]; i++) {
             int x = random.nextInt(champ.length);

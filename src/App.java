@@ -45,8 +45,13 @@ public class App extends JFrame{
 
     public void newPartie(int indexLevel) {
         //this.score = 0;
+        if (indexLevel == Level.CUSTOM.ordinal()) {
+            champ.customSize = Integer.parseInt(JOptionPane.showInputDialog("Enter the size of the field"));
+            champ.customNbMines = Integer.parseInt(JOptionPane.showInputDialog("Enter the number of mines"));
+        }
         champ.newPartie(indexLevel);
         gui.newPartie(indexLevel);
+
     }
 
     public void gameOver() {

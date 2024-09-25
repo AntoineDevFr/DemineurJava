@@ -154,7 +154,7 @@ public class Gui extends JPanel implements ActionListener {
         else if (e.getSource() == buttonNew || e.getSource() == mNewPartie) {
             //On réinitialise le champ
             app.newPartie(levelComboBox.getSelectedIndex());
-        } 
+        }
     }
 
     public void revealedCases() {
@@ -180,6 +180,7 @@ public class Gui extends JPanel implements ActionListener {
 
       
         currentCase.isFill = false;
+        currentCase.flag = false;
         currentCase.repaint(); 
 
         revealedCases++; 

@@ -106,7 +106,7 @@ public class Case extends JPanel implements MouseListener {
         }
 
         if (SwingUtilities.isRightMouseButton(e)) {
-            if(isFill) {
+            if(isFill || flag) {
                 flag = !flag;
                 repaint();
             }
