@@ -12,6 +12,7 @@ public class Champ {
     private int []  tabSize = {5, 10, 15};
     private int []  tabNbMines = {3, 7, 20};
 
+    private int indexLevel = 0;
     Random random = new Random();
     
     public Champ(App app) {
@@ -21,6 +22,7 @@ public class Champ {
      * Initialize the field
      */
     public void init(int indexLevel) {
+        this.indexLevel = indexLevel;
         champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
         for (int i = 0; i < tabNbMines[indexLevel]; i++) {
             int x = random.nextInt(champ.length);
@@ -66,6 +68,10 @@ public class Champ {
             }
         }
         return n;
+    }
+
+    public int getMineCount() {
+        return tabNbMines[indexLevel];
     }
 
     /**

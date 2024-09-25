@@ -50,7 +50,7 @@ public class App extends JFrame{
     }
 
     public void gameOver() {
-        gui.gameover(); 
+        gui.revealedCases(); 
         Icon gameOverIcon = new ImageIcon("./src/game-over.png");
 
         int response = JOptionPane.showOptionDialog(
@@ -72,5 +72,27 @@ public class App extends JFrame{
 
     public void propagation(int x, int y) {
         gui.propagation(x,y);
+    }
+
+    public void winGame() {
+        gui.revealedCases(); 
+        Icon winIcon = new ImageIcon("./src/you-win.png");
+
+        int response = JOptionPane.showOptionDialog(
+            this,
+            "Congratulations! You WIN",
+            "You Win!",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.INFORMATION_MESSAGE,
+            winIcon, // No custom icon
+            new Object[]{"Play Again", "Quit"},
+            "Play Again" // Default selection
+        );
+    
+        if (response == JOptionPane.YES_OPTION) {
+            newPartie(gui.getLevelComboBox().getSelectedIndex());
+        } else {
+            quit();
+        }
     }
 }

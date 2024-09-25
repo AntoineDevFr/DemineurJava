@@ -19,6 +19,9 @@ public class Gui extends JPanel implements ActionListener {
     private App app;
     private Champ champ;
 
+    private int totalNonMineCases; 
+    private int revealedCases;
+
     private JLabel scoreValue = new JLabel("0");
     JPanel panelMines = new JPanel();
 
@@ -133,6 +136,10 @@ public class Gui extends JPanel implements ActionListener {
         panelMines.setBackground(Color.LIGHT_GRAY);
         panelMines.revalidate(); 
         panelMines.repaint();
+
+        totalNonMineCases = champ.getWidth() * champ.getHeight() - champ.getMineCount(); 
+        revealedCases = 0;
+
     }
 
     public JComboBox<Level> getLevelComboBox() {
@@ -150,34 +157,40 @@ public class Gui extends JPanel implements ActionListener {
         } 
     }
 
-    public void gameover() {
+    public void revealedCases() {
         for (int i = 0; i < champ.getWidth(); i++) {
             for (int j = 0; j < champ.getHeight(); j++) {
                 champCases[i][j].isFill = false;
-                champCases[i][j].setBorder(BorderFactory.createLineBorder(Color.RED));
-                champCases[i][j].paintComponent(champCases[i][j].getGraphics());
+                champCases[i][j].flag = false;
+                champCases[i][j].repaint();
             }
         }
     }
 
     public void propagation(int x, int y) {
-        
         if (x < 0 || x >= champ.getWidth() || y < 0 || y >= champ.getHeight()) {
-            return;
+            return; 
         }
-    
+
         Case currentCase = champCases[x][y];
-    
+
         if (currentCase.isMine || !currentCase.isFill) {
-            return;
+            return; 
         }
-    
-        // Reveal the current case
+
+      
         currentCase.isFill = false;
-        currentCase.repaint(); // Update the display correctly
-    
-    //ON propage
+        currentCase.repaint(); 
+
+        revealedCases++; 
+
+        // Check win condition
+        if (revealedCases == totalNonMineCases) {
+            app.winGame();
+        }
+
         if (currentCase.nbMinesAround.isEmpty()) {
+            // Propagate if no mines around
             propagation(x - 1, y); // Up
             propagation(x + 1, y); // Down
             propagation(x, y - 1); // Left

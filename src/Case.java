@@ -1,9 +1,9 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseListener;
-import javax.swing.JPanel;
 import java.awt.event.MouseEvent;
 import java.awt.Font;
 import javax.swing.*;
@@ -13,6 +13,7 @@ public class Case extends JPanel implements MouseListener {
     private Color color = Color.gray;
     public boolean isMine = false;
     public boolean isFill = true;
+    public boolean flag = false;
     public int x;
     public int y;
 
@@ -78,17 +79,39 @@ public class Case extends JPanel implements MouseListener {
             }
             
         }
+
+        if(flag) {
+
+            Image img = toolKit.getImage("./src/flag.png");
+            int imgWidth = img.getWidth(this);
+            int imgHeight = img.getHeight(this);
+
+            int x = (getWidth() - imgWidth) / 2; // Center horizontally
+            int y = (getHeight() - imgHeight) / 2; // Center vertically
+
+            // Draw the image
+            gc.drawImage(img, x, y, this);
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        //isFill = false;  
-        if (this.isMine) {
-            app.gameOver();
-        } else {
-            app.propagation(x,y);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            if (this.isMine) {
+                app.gameOver();
+            } else {
+                app.propagation(x,y);
+            }
+            repaint();  
         }
-        repaint();  
+
+        if (SwingUtilities.isRightMouseButton(e)) {
+            if(isFill) {
+                flag = !flag;
+                repaint();
+            }
+         
+        }
     }
 
     @Override
