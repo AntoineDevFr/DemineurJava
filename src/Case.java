@@ -98,7 +98,7 @@ public class Case extends JPanel implements MouseListener {
         gc.setFont(new Font("Arial", Font.BOLD, 25));
 
         if (isMine) {
-            gc.drawImage(toolKit.getImage("./src/bombe.png"), 0, 0, this);
+            gc.drawImage(toolKit.getImage("./src/resources/bombe.png"), 0, 0, this);
         } else {
             setColorBasedOnMinesAround(gc);
             drawMinesAround(gc);
@@ -131,7 +131,7 @@ public class Case extends JPanel implements MouseListener {
     }
 
     private void drawFlag(Graphics gc) {
-        Image img = toolKit.getImage("./src/flag.png");
+        Image img = toolKit.getImage("./src/resources/flag.png");
         int imgWidth = img.getWidth(this);
         int imgHeight = img.getHeight(this);
 

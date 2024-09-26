@@ -13,7 +13,7 @@ public class App extends JFrame {
     private Gui gui;
 
     public App() {
-        super("Démineur");
+        super("Minesweeper");
         initializeGame();
         configureWindow();
     }
@@ -70,7 +70,7 @@ public class App extends JFrame {
     }
 
     private void showGameOverDialog() {
-        Icon gameOverIcon = new ImageIcon("./src/game-over.png");
+        Icon gameOverIcon = new ImageIcon("./src/resources/game-over.png");
         int response = JOptionPane.showOptionDialog(
             null,
             "You Lose! Would you like to play again or quit?",
@@ -99,7 +99,7 @@ public class App extends JFrame {
     }
 
     private void showWinDialog() {
-        Icon winIcon = new ImageIcon("./src/you-win.png");
+        Icon winIcon = new ImageIcon("./src/resources/you-win.png");
         int response = JOptionPane.showOptionDialog(
             this,
             "Congratulations! You WIN",
