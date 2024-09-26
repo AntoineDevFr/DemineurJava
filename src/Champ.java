@@ -1,78 +1,93 @@
 import java.util.Random;
 
 /**
- * Data
- * @author AntoineB
- * @version 0.0
+ * Champ represents the game field containing mines and manages the game logic.
+ * 
+ * @author Antoine Banchet
+ * @version 1.0
  */
-
 public class Champ {
     private boolean[][] champ;
-   
-    public int customSize;
-    public int customNbMines;
+    private int customSize;
+    private int customNbMines;
 
-    private int []  tabSize = {5, 10, 15, customSize};
-    private int []  tabNbMines = {3, 7, 20, customNbMines};
+    private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
+    private final int[] tabNbMines = {3, 7, 20, 0}; // Last element is for CUSTOM
 
-    private int indexLevel = 0;
-    Random random = new Random();
-    
+    private int indexLevel;
+    private final Random random = new Random();
+
     public Champ(App app) {
-    }
-
-      /**
-     * Initialize the field
-     */
-    public void init(int indexLevel) {
-        this.indexLevel = indexLevel;
-        tabSize[3] = customSize;
-        tabNbMines[3] = customNbMines;
-        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
-        for (int i = 0; i < tabNbMines[indexLevel]; i++) {
-            int x = random.nextInt(champ.length);
-            int y = random.nextInt(champ[0].length);
-            champ[x][y] = true;
-        }
+        
     }
 
     /**
-     * Display all the field
+     * Initializes the field based on the selected level.
+     */
+    public void init(int indexLevel) {
+        this.indexLevel = indexLevel;
+        updateCustomValues();
+        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
+        placeMines();
+    }
+
+    /**
+     * Updates custom size and number of mines.
+     */
+    private void updateCustomValues() {
+        tabSize[3] = customSize;
+        tabNbMines[3] = customNbMines;
+    }
+
+    /**
+     * Places mines randomly on the field.
+     */
+    private void placeMines() {
+        
+        int minesPlaced = 0;
+        while (minesPlaced < tabNbMines[indexLevel]) {
+            int x = random.nextInt(champ.length);
+            int y = random.nextInt(champ[0].length);
+    
+            if (!isMine(x, y)) {
+                champ[x][y] = true;
+                minesPlaced++;
+            }
+        }
+    }
+    
+    /**
+     * Displays the field for debugging purposes.
      */
     public void display() {
         for (int i = 0; i < champ.length; i++) {
             for (int j = 0; j < champ[i].length; j++) {
-                if(isMine(i, j)) {
-                    System.out.print("x");
-                } else {
-                    System.out.print(nbMinesaround(i, j));
-                }
-                //System.out.print(champ[i][j] ? "x" : "o");
+                System.out.print(isMine(i, j) ? "x" : nbMinesaround(i, j));
             }
             System.out.println();
         }
     }
 
     /**
-     * @return is a Mine ?
+     * Checks if a cell contains a mine.
      */
     public boolean isMine(int i, int j) {
         return champ[i][j];
     }
 
     /**
-     * Calcul le nb de n
+     * Counts the number of mines around a given cell.
      */
     public int nbMinesaround(int x, int y) {
-        int n = 0;
-        for (int i = x-1; i <= x+1; i++) {
-            for (int j = y-1; j <= y+1; j++) {
-                if (i!=-1 && i!=champ.length && j != -1 && j != champ[0].length && champ[i][j]) {
-                    n++;
+        int count = 0;
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++) {
+                if (i >= 0 && i < champ.length && j >= 0 && j < champ[0].length && champ[i][j]) {
+                    count++;
                 }
             }
         }
-        return n;
+        return count;
     }
 
     public int getMineCount() {
@@ -80,7 +95,7 @@ public class Champ {
     }
 
     /**
-     * newPartie
+     * Starts a new game based on the selected level.
      */
     public void newPartie(int indexLevel) {
         this.init(indexLevel);
@@ -88,16 +103,26 @@ public class Champ {
     }
 
     /**
-     * @return the width
+     * Gets the width of the field.
      */
     public int getWidth() {
         return champ.length;
     }
 
     /**
-     * @return the height
+     * Gets the height of the field.
      */
     public int getHeight() {
         return champ[0].length;
     }
-} 
+
+    // Getters and setters for customSize and customNbMines
+    public void setCustomSize(int size) {
+        this.customSize = size;
+    }
+
+    public void setCustomNbMines(int nbMines) {
+        this.customNbMines = nbMines;
+    }
+
+}

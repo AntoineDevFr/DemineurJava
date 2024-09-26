@@ -1,21 +1,20 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 /**
  * Graphical User Interface (View)
- * @author AntoineB
- * @version 0.0
+ * Manages the presentation layer of the game.
+ * 
+ * @author Antoine Banchet
+ * @version 1.0
  */
-
-public class Gui extends JPanel implements ActionListener { 
+public class Gui extends JPanel implements ActionListener {
     private JButton buttonQuit, buttonNew;
     private JMenuItem mQuitter, mNewPartie; 
     private JComboBox<Level> levelComboBox;
-    
+
     private App app;
     private Champ champ;
 
@@ -23,25 +22,30 @@ public class Gui extends JPanel implements ActionListener {
     private int revealedCases;
 
     private JLabel scoreValue = new JLabel("0");
-    JPanel panelMines = new JPanel();
-
+    private JPanel panelMines = new JPanel();
     public Case[][] champCases;
 
-
-    Gui(App app, Champ champ) {
-        setLayout(new BorderLayout());
+    public Gui(App app, Champ champ) {
         this.app = app;
         this.champ = champ;
 
-        /**
-         * JPanel CENTER
-         */
-        majPanelMines();
-        add(panelMines, BorderLayout.CENTER);
+        setLayout(new BorderLayout());
+        initializePanels();
+        initializeMenu();
+    }
 
-        /**
-         * JPanel NORTH
-         */
+    private void initializePanels() {
+        initializeMinesPanel();
+        initializeNorthPanel();
+        initializeSouthPanel();
+    }
+
+    private void initializeMinesPanel() {
+        updateMinesPanel();
+        add(panelMines, BorderLayout.CENTER);
+    }
+
+    private void initializeNorthPanel() {
         JPanel panelNorth = new JPanel();
         panelNorth.setBackground(new Color(60, 63, 65));
 
@@ -49,23 +53,21 @@ public class Gui extends JPanel implements ActionListener {
         scoreLabel.setForeground(Color.WHITE);
         JLabel levLabel = new JLabel("Level : ");
         levLabel.setForeground(Color.WHITE);
-
         scoreValue.setForeground(Color.CYAN);
 
         panelNorth.add(scoreLabel);
         panelNorth.add(scoreValue);
         panelNorth.add(levLabel);
 
-        //ComboBox
-        levelComboBox = new JComboBox<Level>(Level.values());
+        // ComboBox for levels
+        levelComboBox = new JComboBox<>(Level.values());
         levelComboBox.addActionListener(this);
         panelNorth.add(levelComboBox);
 
         add(panelNorth, BorderLayout.NORTH);
+    }
 
-        /**
-         * JPanel SOUTH
-         */
+    private void initializeSouthPanel() {
         JPanel panelSouth = new JPanel();
         panelSouth.setBackground(new Color(43, 43, 43));
 
@@ -80,10 +82,9 @@ public class Gui extends JPanel implements ActionListener {
         panelSouth.add(buttonNew);
        
         add(panelSouth, BorderLayout.SOUTH);
+    }
 
-        /**
-         * Menu
-         */
+    private void initializeMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Options");
         menuBar.add(menu);
@@ -93,53 +94,54 @@ public class Gui extends JPanel implements ActionListener {
         mNewPartie.addActionListener(this);
 
         mQuitter = new JMenuItem("Quit");
-        menu.add(mQuitter) ;
+        menu.add(mQuitter);
         mQuitter.addActionListener(this);
 
         app.setJMenuBar(menuBar);
     }
 
-
     public void newPartie(int indexLevel) {
         scoreValue.setText("0");
-        panelMines.removeAll();
-        majPanelMines();
+        revealedCases = 0;
+        updateMinesPanel();
         app.pack();
     }
 
-    public void majPanelMines() {
-        //ON récupère le champ 
+    public void updateMinesPanel() {
         champCases = new Case[champ.getWidth()][champ.getHeight()];
-        for (int i = 0; i < champ.getWidth(); i++) {
-            for (int j = 0; j < champ.getHeight(); j++) {
-                champCases[i][j] = new Case(app);
-                if(champ.isMine(i, j)) {
-                    champCases[i][j].setMine(true);
-                } else if(champ.nbMinesaround(i, j) != 0){
-                    champCases[i][j].setNbMinesAround(String.valueOf(champ.nbMinesaround(i, j)));
-                }
-            }
-        }
 
+        panelMines.removeAll();
         panelMines.setLayout(new GridLayout(champ.getWidth(), champ.getHeight()));
         panelMines.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         for (int i = 0; i < champ.getWidth(); i++) {
             for (int j = 0; j < champ.getHeight(); j++) {
-                JPanel casePanel = champCases[i][j];
-                champCases[i][j].x = i;
-                champCases[i][j].y = j;
-                //casePanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-                panelMines.add(casePanel);
+                champCases[i][j] = createCasePanel(i, j);
+                panelMines.add(champCases[i][j]);
             }
         }
+        
         panelMines.setBackground(Color.LIGHT_GRAY);
-        panelMines.revalidate(); 
+        //panelMines.revalidate(); 
         panelMines.repaint();
 
-        totalNonMineCases = champ.getWidth() * champ.getHeight() - champ.getMineCount(); 
-        revealedCases = 0;
+        totalNonMineCases = champ.getWidth() * champ.getHeight() - champ.getMineCount();
+    }
 
+    private Case createCasePanel(int i, int j) {
+        Case casePanel = new Case(app);
+        casePanel.setCoordinates(i, j);
+
+        if (champ.isMine(i, j)) {
+            casePanel.setMine(true);
+        } else {
+            int minesAround = champ.nbMinesaround(i, j);
+            if (minesAround != 0) {
+                casePanel.setNbMinesAround(String.valueOf(minesAround));
+            }
+        }
+
+        return casePanel;
     }
 
     public JComboBox<Level> getLevelComboBox() {
@@ -148,11 +150,9 @@ public class Gui extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == buttonQuit || e.getSource() == mQuitter) {
+        if (e.getSource() == buttonQuit || e.getSource() == mQuitter) {
             app.quit();
-        }
-        else if (e.getSource() == buttonNew || e.getSource() == mNewPartie) {
-            //On réinitialise le champ
+        } else if (e.getSource() == buttonNew || e.getSource() == mNewPartie) {
             app.newPartie(levelComboBox.getSelectedIndex());
         }
     }
@@ -160,46 +160,39 @@ public class Gui extends JPanel implements ActionListener {
     public void revealedCases() {
         for (int i = 0; i < champ.getWidth(); i++) {
             for (int j = 0; j < champ.getHeight(); j++) {
-                champCases[i][j].isFill = false;
-                champCases[i][j].flag = false;
+                champCases[i][j].setFill(false);
+                champCases[i][j].setFlag(false);
                 champCases[i][j].repaint();
             }
         }
     }
 
     public void propagation(int x, int y) {
-        if (x < 0 || x >= champ.getWidth() || y < 0 || y >= champ.getHeight()) {
-            return; 
-        }
+        if (x >= 0 && x < champ.getWidth() && y >= 0 && y < champ.getHeight()) { //Check if the case is in the field
+            Case currentCase = champCases[x][y];
+            if (!currentCase.getIsMine() && currentCase.getIsFill()) { //Check if the case is not a mine and is not already revealed
+                currentCase.setFill(false);
+                currentCase.setFlag(false);
+                currentCase.repaint(); 
+                revealedCases++; 
 
-        Case currentCase = champCases[x][y];
+                // Check win condition
+                if (revealedCases == totalNonMineCases) {
+                    app.winGame();
+                }
 
-        if (currentCase.isMine || !currentCase.isFill) {
-            return; 
-        }
-
-      
-        currentCase.isFill = false;
-        currentCase.flag = false;
-        currentCase.repaint(); 
-
-        revealedCases++; 
-
-        // Check win condition
-        if (revealedCases == totalNonMineCases) {
-            app.winGame();
-        }
-
-        if (currentCase.nbMinesAround.isEmpty()) {
-            // Propagate if no mines around
-            propagation(x - 1, y); // Up
-            propagation(x + 1, y); // Down
-            propagation(x, y - 1); // Left
-            propagation(x, y + 1); // Right
-            propagation(x - 1, y - 1); // Top-left
-            propagation(x - 1, y + 1); // Top-right
-            propagation(x + 1, y - 1); // Bottom-left
-            propagation(x + 1, y + 1); // Bottom-right
+                if (currentCase.getNbMinesAround().isEmpty()) { //Check if there are no mines around
+                    // Propagate if no mines around
+                    propagation(x - 1, y); // Up
+                    propagation(x + 1, y); // Down
+                    propagation(x, y - 1); // Left
+                    propagation(x, y + 1); // Right
+                    propagation(x - 1, y - 1); // Top-left
+                    propagation(x - 1, y + 1); // Top-right
+                    propagation(x + 1, y - 1); // Bottom-left
+                    propagation(x + 1, y + 1); // Bottom-right
+                }
+            }
         }
     }
 }
