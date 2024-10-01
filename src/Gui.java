@@ -18,20 +18,31 @@ public class Gui extends JPanel implements ActionListener {
     private App app;
     private Champ champ;
 
+    public int score;
+    private Compteur compteur;
+
     private int totalNonMineCases; 
     private int revealedCases;
 
-    private JLabel scoreValue = new JLabel("0");
+    private JLabel scoreValue;
     private JPanel panelMines = new JPanel();
     public Case[][] champCases;
 
     public Gui(App app, Champ champ) {
         this.app = app;
         this.champ = champ;
+        
+        this.compteur = new Compteur(this);
+        this.scoreValue = new JLabel(String.valueOf(score));
+        compteur.start();
 
         setLayout(new BorderLayout());
         initializePanels();
         initializeMenu();
+    }
+
+    public void updateScoreValue() {
+        scoreValue.setText(String.valueOf(score));
     }
 
     private void initializePanels() {
@@ -101,10 +112,20 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void newPartie(int indexLevel) {
-        scoreValue.setText("0");
+        compteur.stop();
+        compteur.reset();
+        compteur.start();
         revealedCases = 0;
         updateMinesPanel();
         app.pack();
+    }
+
+    public void stopTimer() {
+        compteur.stop();
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public void updateMinesPanel() {

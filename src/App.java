@@ -66,6 +66,7 @@ public class App extends JFrame  {
 
     public void gameOver() {
         gui.revealedCases();
+        gui.stopTimer();
         showGameOverDialog();
     }
 
@@ -95,6 +96,7 @@ public class App extends JFrame  {
 
     public void winGame() {
         gui.revealedCases();
+        gui.stopTimer();
         showWinDialog();
     }
 
@@ -102,7 +104,7 @@ public class App extends JFrame  {
         Icon winIcon = new ImageIcon("./src/resources/you-win.png");
         int response = JOptionPane.showOptionDialog(
             this,
-            "Congratulations! You WIN",
+            "Congratulations! You WIN with a score of " + gui.getScore() + " sec! Would you like to play again or quit?",
             "You Win!",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
