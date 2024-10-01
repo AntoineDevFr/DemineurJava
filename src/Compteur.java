@@ -18,14 +18,17 @@ class Compteur implements Runnable {
             try {
                 Thread.sleep(1000);
                 //affScores();
-                gui.score++;
-                gui.updateScoreValue();
+                if(processScores != null) {
+                    gui.score++;
+                    gui.updateScoreValue();
+                }
+                
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     public void stop() {
         processScores = null;
     }
