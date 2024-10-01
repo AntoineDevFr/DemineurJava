@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.net.* ;
+import java.io.* ;
 
 /**
  * Class App (Controller)
@@ -35,7 +37,33 @@ public class App extends JFrame  {
     }
 
     public static void main(String[] args) {
-        new App(); 
+        new App();
+    }
+
+    /**
+     * Connects to server
+     */
+
+    public void connect() {
+        try {// ouverture de la socket et des streams
+
+            Socket sock = new Socket("localhost",1234);
+            DataOutputStream out =new DataOutputStream(sock.getOutputStream()); 
+            DataInputStream in = new DataInputStream(sock.getInputStream());
+
+            out.writeUTF("Antoine"); // envoi d’un nom au serveur
+            int numJoueur = in.readInt(); // reception d’un nombre
+             
+            System.out.println("Joueur n°:"+numJoueur); 
+            in.close(); // fermeture Stream
+            out.close();
+            sock.close() ; // fermeture Socket
+            
+        } catch (UnknownHostException e) {
+            System.out.println("R2D2 est inconnue");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

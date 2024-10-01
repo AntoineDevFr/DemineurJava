@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
  */
 public class Gui extends JPanel implements ActionListener {
     private JButton buttonQuit, buttonNew;
-    private JMenuItem mQuitter, mNewPartie; 
+    private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
 
     private App app;
@@ -49,6 +49,7 @@ public class Gui extends JPanel implements ActionListener {
         initializeMinesPanel();
         initializeNorthPanel();
         initializeSouthPanel();
+        initializeWestPanel();
     }
 
     private void initializeMinesPanel() {
@@ -95,6 +96,16 @@ public class Gui extends JPanel implements ActionListener {
         add(panelSouth, BorderLayout.SOUTH);
     }
 
+    private void initializeWestPanel() {
+        JPanel panelWest = new JPanel();
+        panelWest.setBackground(new Color(43, 43, 43));
+        JLabel labelUsers = new JLabel("Users connected : ");
+        labelUsers.setForeground(Color.WHITE);
+        panelWest.add(labelUsers);
+
+
+        add(panelWest, BorderLayout.WEST);
+    }
     private void initializeMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Options");
@@ -107,6 +118,10 @@ public class Gui extends JPanel implements ActionListener {
         mQuitter = new JMenuItem("Quit");
         menu.add(mQuitter);
         mQuitter.addActionListener(this);
+
+        mConnexion = new JMenuItem("Connect");
+        menu.add(mConnexion);
+        mConnexion.addActionListener(this);
 
         app.setJMenuBar(menuBar);
     }
@@ -175,6 +190,8 @@ public class Gui extends JPanel implements ActionListener {
             app.quit();
         } else if (e.getSource() == buttonNew || e.getSource() == mNewPartie) {
             app.newPartie(levelComboBox.getSelectedIndex());
+        } else if (e.getSource() == mConnexion) {
+            app.connect();
         }
     }
 
