@@ -7,7 +7,7 @@ import javax.swing.*;
  * @author Antoine Banchet
  * @version 1.0
  */
-public class App extends JFrame {
+public class App extends JFrame  {
 
     private Champ champ;
     private Gui gui;
@@ -73,7 +73,7 @@ public class App extends JFrame {
         Icon gameOverIcon = new ImageIcon("./src/resources/game-over.png");
         int response = JOptionPane.showOptionDialog(
             null,
-            "You Lose! Would you like to play again or quit?",
+            "You Lose ! Would you like to play again or quit?",
             "Game Over",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
@@ -105,7 +105,7 @@ public class App extends JFrame {
             "Congratulations! You WIN",
             "You Win!",
             JOptionPane.YES_NO_OPTION,
-            JOptionPane.INFORMATION_MESSAGE,
+            JOptionPane.QUESTION_MESSAGE,
             winIcon,
             new Object[]{"Play Again", "Quit"},
             "Play Again"

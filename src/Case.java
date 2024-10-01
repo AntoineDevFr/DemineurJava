@@ -122,7 +122,7 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
-    private void drawMinesAround(Graphics gc) {
+    private void drawMinesAround(Graphics gc) { // Draw the number of mines around the cell
         if (!nbMinesAround.isEmpty()) {
             int textWidth = gc.getFontMetrics().stringWidth(nbMinesAround);
             int textHeight = gc.getFontMetrics().getHeight();

@@ -26,17 +26,13 @@ public class Champ {
      */
     public void init(int indexLevel) {
         this.indexLevel = indexLevel;
-        updateCustomValues();
-        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
-        placeMines();
-    }
-
-    /**
-     * Updates custom size and number of mines.
-     */
-    private void updateCustomValues() {
+        
+        //updateCustomValues;
         tabSize[3] = customSize;
         tabNbMines[3] = customNbMines;
+
+        champ = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
+        placeMines();
     }
 
     /**
