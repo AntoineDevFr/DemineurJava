@@ -13,6 +13,10 @@ public class App extends JFrame  {
 
     private Champ champ;
     private Gui gui;
+    public boolean online = false;
+    public DataOutputStream out;
+    public DataInputStream in;
+    private Socket sock;
 
     public App() {
         super("Minesweeper");
@@ -21,7 +25,7 @@ public class App extends JFrame  {
     }
 
     private void initializeGame() {
-        champ = new Champ(this);
+        champ = new Champ();
         champ.init(Level.EASY.ordinal());
         champ.display();
         gui = new Gui(this, champ);
@@ -47,23 +51,74 @@ public class App extends JFrame  {
     public void connect() {
         try {// ouverture de la socket et des streams
 
-            Socket sock = new Socket("localhost",1234);
-            DataOutputStream out =new DataOutputStream(sock.getOutputStream()); 
-            DataInputStream in = new DataInputStream(sock.getInputStream());
+            sock = new Socket("localhost",1234);
+            online = true;
+            out =new DataOutputStream(sock.getOutputStream()); 
+            in = new DataInputStream(sock.getInputStream());
 
+            out.writeUTF("auth");
             out.writeUTF("Antoine"); // envoi d’un nom au serveur
+            //Je demande la dimmension du champ
             int numJoueur = in.readInt(); // reception d’un nombre
-             
+
+
+
             System.out.println("Joueur n°:"+numJoueur); 
-            in.close(); // fermeture Stream
-            out.close();
-            sock.close() ; // fermeture Socket
+            System.out.println("Connecté au serveur");
+
+            initChampOnline();
+            // in.close(); // fermeture Stream
+            // out.close();
+            // sock.close() ; // fermeture Socket
             
         } catch (UnknownHostException e) {
             System.out.println("R2D2 est inconnue");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void initChampOnline() {
+        try {
+            out.writeUTF("init");
+            int level = in.readInt();
+            System.out.println("Level : " + level);
+            gui.newPartie(level);
+        } catch (UnknownHostException e) {
+            System.out.println("Inconnue");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isMineOnline(int i, int j) {
+        boolean response = false;
+        try {
+            out.writeUTF("isMine");
+            out.writeUTF(String.valueOf(i));
+            out.writeUTF(String.valueOf(j));
+            response = in.readBoolean();
+        } catch (UnknownHostException e) {
+            System.out.println("Inconnue");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public int nbMinesaroundOnline(int i, int j) {
+        int count = 0;
+        try {
+            out.writeUTF("nbMinesaround");
+            out.writeUTF(String.valueOf(i));
+            out.writeUTF(String.valueOf(j));
+            count = in.readInt();
+        } catch (UnknownHostException e) {
+            System.out.println("Inconnue");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 
     /**
@@ -119,7 +174,21 @@ public class App extends JFrame  {
     }
 
     public void propagation(int x, int y) {
-        gui.propagation(x, y);
+        if (!online)
+        {
+            gui.propagation(x, y);
+        } else { // envoyer x et y au serveur
+            try {
+                out.writeUTF("cord");
+                out.writeUTF(String.valueOf(x));
+                out.writeUTF(String.valueOf(y));
+            } catch (UnknownHostException e) {
+                System.out.println("Inconnue");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+       
     }
 
     public void winGame() {

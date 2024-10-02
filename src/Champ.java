@@ -17,7 +17,7 @@ public class Champ {
     private int indexLevel;
     private final Random random = new Random();
 
-    public Champ(App app) {
+    public Champ() {
         
     }
 

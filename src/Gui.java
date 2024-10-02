@@ -14,6 +14,10 @@ public class Gui extends JPanel implements ActionListener {
     private JButton buttonQuit, buttonNew;
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
+    private JPanel panelNorth;
+
+    private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
+    private final int[] tabNbMines = {3, 7, 20, 0};
 
     private App app;
     private Champ champ;
@@ -53,12 +57,12 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     private void initializeMinesPanel() {
-        updateMinesPanel();
+        updateMinesPanel(Level.EASY.ordinal());
         add(panelMines, BorderLayout.CENTER);
     }
 
     private void initializeNorthPanel() {
-        JPanel panelNorth = new JPanel();
+        panelNorth = new JPanel();
         panelNorth.setBackground(new Color(60, 63, 65));
 
         JLabel scoreLabel = new JLabel("Score : ");
@@ -131,7 +135,10 @@ public class Gui extends JPanel implements ActionListener {
         compteur.reset();
         compteur.start();
         revealedCases = 0;
-        updateMinesPanel();
+        if(app.online) {
+            panelNorth.remove(levelComboBox);
+        }
+        updateMinesPanel(indexLevel);
         app.pack();
     }
 
@@ -143,15 +150,16 @@ public class Gui extends JPanel implements ActionListener {
         return score;
     }
 
-    public void updateMinesPanel() {
-        champCases = new Case[champ.getWidth()][champ.getHeight()];
+    public void updateMinesPanel(int indexLevel) {
+        int sizeNewChamp = tabSize[indexLevel];
+        champCases = new Case[sizeNewChamp][sizeNewChamp];
 
         panelMines.removeAll();
-        panelMines.setLayout(new GridLayout(champ.getWidth(), champ.getHeight()));
+        panelMines.setLayout(new GridLayout(sizeNewChamp,sizeNewChamp));
         panelMines.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        for (int i = 0; i < champ.getWidth(); i++) {
-            for (int j = 0; j < champ.getHeight(); j++) {
+        for (int i = 0; i < sizeNewChamp; i++) {
+            for (int j = 0; j < sizeNewChamp; j++) {
                 champCases[i][j] = createCasePanel(i, j);
                 panelMines.add(champCases[i][j]);
             }
@@ -161,22 +169,32 @@ public class Gui extends JPanel implements ActionListener {
         //panelMines.revalidate(); 
         panelMines.repaint();
 
-        totalNonMineCases = champ.getWidth() * champ.getHeight() - champ.getMineCount();
+        totalNonMineCases = sizeNewChamp * sizeNewChamp - tabNbMines[indexLevel];
     }
 
     private Case createCasePanel(int i, int j) {
         Case casePanel = new Case(app);
         casePanel.setCoordinates(i, j);
 
-        if (champ.isMine(i, j)) {
-            casePanel.setMine(true);
+        if (!app.online) {
+            if (champ.isMine(i, j)) {
+                casePanel.setMine(true);
+            } else {
+                int minesAround = champ.nbMinesaround(i, j);
+                if (minesAround != 0) {
+                    casePanel.setNbMinesAround(String.valueOf(minesAround));
+                }
+            }
         } else {
-            int minesAround = champ.nbMinesaround(i, j);
-            if (minesAround != 0) {
-                casePanel.setNbMinesAround(String.valueOf(minesAround));
+            if (app.isMineOnline(i, j)) {
+                casePanel.setMine(true);
+            } else {
+                int minesAround = app.nbMinesaroundOnline(i, j);
+                if (minesAround != 0) {
+                    casePanel.setNbMinesAround(String.valueOf(minesAround));
+                }
             }
         }
-
         return casePanel;
     }
 
