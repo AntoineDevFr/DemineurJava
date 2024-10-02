@@ -12,10 +12,13 @@ import java.awt.event.ActionListener;
  */
 public class Gui extends JPanel implements ActionListener {
     private JButton buttonQuit, buttonNew;
+    JMenu menu;
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
     private JPanel panelNorth, panelSouth; 
+    public JDialog waitingDialog;
     private int indexLevel;
+    public boolean startgame = false;
 
     private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
     private final int[] tabNbMines = {3, 7, 20, 0};
@@ -113,7 +116,7 @@ public class Gui extends JPanel implements ActionListener {
     }
     private void initializeMenu() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("Options");
+        menu = new JMenu("Options");
         menuBar.add(menu);
 
         mNewPartie = new JMenuItem("New Game");
@@ -136,13 +139,57 @@ public class Gui extends JPanel implements ActionListener {
         compteur.reset();
         compteur.start();
         revealedCases = 0;
-        if(app.online) {
+        updateMinesPanel(indexLevel);
+        app.networkManager.startListening();
+
+        if (app.online) {
+            // Remove elements from the UI
             panelNorth.remove(levelComboBox);
             panelSouth.remove(buttonNew);
+            menu.remove(mConnexion);
+
+            // Create a waiting dialog
+            waitingDialog = new JDialog(app, "Waiting for Players", true);
+            waitingDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            waitingDialog.setSize(200, 100);
+            waitingDialog.setLocationRelativeTo(app);
+    
+            // Add a simple label to indicate waiting status
+            JLabel waitingLabel = new JLabel("Waiting for other players ...", SwingConstants.CENTER);
+            waitingDialog.add(waitingLabel);
+            app.networkManager.sendStart();
+            // Add a window listener to handle the dialog close event
+            waitingDialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                    // If the dialog is closed, switch back to solo mode
+                    app.online = false; // Switch back to solo mode
+                    app.networkManager.exit();
+                    startgame = true; // Exit the waiting loop
+                    panelNorth.add(levelComboBox);
+                    panelSouth.add(buttonNew);
+                    menu.add(mConnexion);
+                    compteur.stop();
+                    compteur.reset();
+                    compteur.start();
+                    revealedCases = 0;
+                }
+            });
+    
+            // Show the waiting dialog
+            waitingDialog.setVisible(true);
+    
+            // Wait until the server sends the "start" signal or the dialog is closed
+            System.out.println("Valeur de "+ startgame);
+    
+            // Hide the waiting dialog when startgame is true
+            waitingDialog.dispose();
         }
-        updateMinesPanel(indexLevel);
+    
+        // Continue with game setup
         app.pack();
     }
+    
 
     public void stopTimer() {
         compteur.stop();

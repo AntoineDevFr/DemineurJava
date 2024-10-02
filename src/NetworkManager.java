@@ -14,13 +14,12 @@ public class NetworkManager {
 
     }
 
-    public synchronized void connect(String host, int port) throws IOException {
+    public void connect(String host, int port) throws IOException {
         sock = new Socket(host, port);
         app.online = true;
         out = new DataOutputStream(sock.getOutputStream());
         in = new DataInputStream(sock.getInputStream());
         System.out.println("Connected to server at " + host + ":" + port);
-        startListening();
     }
 
     public void auth(String namePlayer) throws IOException
@@ -38,6 +37,14 @@ public class NetworkManager {
         System.out.println("Level : " + level);
         app.gui.newPartie(level);
     } 
+
+    public void sendStart() {
+        try {
+            out.writeUTF("wantstart");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public boolean isMineOnline(int i, int j) {
         boolean response = false;
@@ -82,6 +89,15 @@ public class NetworkManager {
         }
     }
 
+    public void exit() {
+        try {
+            out.writeUTF("exit");
+            sock.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void startListening() {
         Thread listenerThread = new Thread(() -> {
             try {
@@ -89,13 +105,20 @@ public class NetworkManager {
                     if (in.available() > 0) {  // Check if there is data to read
                         String message = in.readUTF();
                         
-                        // Handle broadcast message
-                        if (message.equals("revealCase")) {
-                            int x = Integer.parseInt(in.readUTF());  // Assuming the server sends coordinates
-                            int y = Integer.parseInt(in.readUTF());
-                            app.revealCaseOnline(x, y);  // Call the method to reveal the case on the GUI
+                        switch (message) {
+                            case "revealCase":
+                                int x = Integer.parseInt(in.readUTF());  // Assuming the server sends coordinates
+                                int y = Integer.parseInt(in.readUTF());
+                                app.revealCaseOnline(x, y);
+                                break;
+                            case "start" :
+                                System.out.println("Je reçois start");
+                                app.gui.startgame = true;
+                                app.gui.waitingDialog.dispose();
+                                break;
+                            default:
+                                break;
                         }
-    
                         // Handle other potential messages
                     } else {
                         // No data to read, sleep briefly to avoid busy-waiting

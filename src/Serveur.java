@@ -17,21 +17,28 @@ public class Serveur {
         try {
             ServerSocket gestSock = new ServerSocket(1234);
 
-            while (true) { 
-                Socket socket = gestSock.accept();
-                System.out.println("Nouveau client connecté");
+            while (true) {
+                // Vérifier s'il y a déjà 2 clients connectés
+                if (clients.size() < 2) {
+                    Socket socket = gestSock.accept();
+                    System.out.println("Nouveau client connecté");
 
-                // Créer un gestionnaire de client dans un thread
-                ClientHandler clientHandler = new ClientHandler(socket);
-                clients.add(clientHandler); // Ajouter le client à la liste
-                new Thread(clientHandler).start(); // Démarrer le thread
+                    // Créer un gestionnaire de client dans un thread
+                    ClientHandler clientHandler = new ClientHandler(socket);
+                    clients.add(clientHandler); // Ajouter le client à la liste
+                    new Thread(clientHandler).start(); // Démarrer le thread
+                } else {
+                    System.out.println("Nombre maximum de joueurs atteint. Connexion refusée.");
+                    // Refuser les nouvelles connexions
+                    Socket rejectedSocket = gestSock.accept();
+                    rejectedSocket.close();
+                }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     public static void main(String[] args) {
         new Serveur();
@@ -56,7 +63,7 @@ public class Serveur {
                 entree = new DataInputStream(socket.getInputStream());
                 sortie = new DataOutputStream(socket.getOutputStream());
 
-                while(connected) {
+                while (connected) {
                     String message = entree.readUTF();
                     // Traiter les messages du client
                     switch (message) {
@@ -66,7 +73,7 @@ public class Serveur {
                             String y = entree.readUTF();
                             System.out.println(nomJoueur + " : " + x + " " + y);
 
-                            if(champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
+                            if (champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
                                 System.out.println("Serveur : " + nomJoueur + " a perdu");
                             } else {
                                 broadcastMessage("revealCase");
@@ -74,7 +81,7 @@ public class Serveur {
                                 broadcastMessage(y);
                                 System.out.println("Serveur : " + nomJoueur + " a cliqué sur " + x + " " + y);
                             }
-                            
+
                             break;
                         case "auth":
                             nomJoueur = entree.readUTF();
@@ -83,26 +90,30 @@ public class Serveur {
                             break;
                         case "init":
                             sortie.writeInt(level.ordinal());
-                            System.out.println("Serveur : Envoie du niveau de difficulté"+level.ordinal());
+                            System.out.println("Serveur : Envoie du niveau de difficulté " + level.ordinal());
                             break;
                         case "isMine":
                             String i = entree.readUTF();
                             String j = entree.readUTF();
                             sortie.writeBoolean(champ.isMine(Integer.parseInt(i), Integer.parseInt(j)));
-                            //System.out.println(nomJoueur + "is Mine pour les cases : " + i + " " + j);
                             break;
                         case "nbMinesaround":
                             String x1 = entree.readUTF();
                             String y1 = entree.readUTF();
                             sortie.writeInt(champ.nbMinesaround(Integer.parseInt(x1), Integer.parseInt(y1)));
-                            //System.out.println(nomJoueur + "nbMinesAround : " + x1 + " " + y1);
                             break;
                         case "exit":
                             connected = false;
-                             // Fermeture des streams et du socket
+                            // Fermeture des streams et du socket
                             sortie.close();
                             entree.close();
                             socket.close();
+                            clients.remove(this); // Retirer le client de la liste
+                            break;
+                        case "wantstart":
+                            if (clients.size() == 2) {
+                                broadcastMessage("start");
+                            }
                             break;
                         default:
                             break;
@@ -112,6 +123,7 @@ public class Serveur {
                 e.printStackTrace();
             }
         }
+
     }
 
     public static void broadcastMessage(String message) {
@@ -123,6 +135,4 @@ public class Serveur {
             }
         }
     }
-
-    
 }

@@ -140,6 +140,9 @@ public class App extends JFrame  {
      * Quit the application.
      */
     public void quit() {
+        if (online) {
+            networkManager.exit();
+        }
         System.exit(0);
     }
 
