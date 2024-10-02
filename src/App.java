@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.net.* ;
 import java.io.* ;
 
 /**
@@ -12,11 +11,9 @@ import java.io.* ;
 public class App extends JFrame  {
 
     private Champ champ;
-    private Gui gui;
+    public Gui gui;
+    public NetworkManager networkManager;
     public boolean online = false;
-    public DataOutputStream out;
-    public DataInputStream in;
-    private Socket sock;
 
     public App() {
         super("Minesweeper");
@@ -42,90 +39,6 @@ public class App extends JFrame  {
 
     public static void main(String[] args) {
         new App();
-    }
-
-    /**
-     * Connects to server
-     */
-
-    public void connect() {
-        try {// ouverture de la socket et des streams
-
-            sock = new Socket("localhost",1234);
-            online = true;
-            out =new DataOutputStream(sock.getOutputStream()); 
-            in = new DataInputStream(sock.getInputStream());
-
-            out.writeUTF("auth");
-            out.writeUTF("Antoine"); // envoi d’un nom au serveur
-            //Je demande la dimmension du champ
-            int numJoueur = in.readInt(); // reception d’un nombre
-
-
-
-            System.out.println("Joueur n°:"+numJoueur); 
-            System.out.println("Connecté au serveur");
-
-            initChampOnline();
-            // in.close(); // fermeture Stream
-            // out.close();
-            // sock.close() ; // fermeture Socket
-            
-        } catch (UnknownHostException e) {
-            System.out.println("R2D2 est inconnue");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void initChampOnline() {
-        try {
-            out.writeUTF("init");
-            int level = in.readInt();
-            System.out.println("Level : " + level);
-            gui.newPartie(level);
-        } catch (UnknownHostException e) {
-            System.out.println("Inconnue");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean isMineOnline(int i, int j) {
-        boolean response = false;
-        try {
-            out.writeUTF("isMine");
-            out.writeUTF(String.valueOf(i));
-            out.writeUTF(String.valueOf(j));
-            response = in.readBoolean();
-        } catch (UnknownHostException e) {
-            System.out.println("Inconnue");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return response;
-    }
-
-    public int nbMinesaroundOnline(int i, int j) {
-        int count = 0;
-        try {
-            out.writeUTF("nbMinesaround");
-            out.writeUTF(String.valueOf(i));
-            out.writeUTF(String.valueOf(j));
-            count = in.readInt();
-        } catch (UnknownHostException e) {
-            System.out.println("Inconnue");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return count;
-    }
-
-    /**
-     * Quit the application.
-     */
-    public void quit() {
-        System.exit(0);
     }
 
     public void newPartie(int indexLevel) {
@@ -155,21 +68,24 @@ public class App extends JFrame  {
 
     private void showGameOverDialog() {
         Icon gameOverIcon = new ImageIcon("./src/resources/game-over.png");
-        int response = JOptionPane.showOptionDialog(
-            null,
-            "You Lose ! Would you like to play again or quit?",
-            "Game Over",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE,
-            gameOverIcon,
-            new Object[]{"Play Again", "Quit"},
-            "Play Again"
-        );
-
-        if (response == JOptionPane.YES_OPTION) {
-            newPartie(gui.getLevelComboBox().getSelectedIndex());
+        if (online) {
+            JOptionPane.showMessageDialog(this, "You Lose ! You have to wait the end of game", "Game Over", JOptionPane.INFORMATION_MESSAGE, gameOverIcon);
         } else {
-            quit();
+            int response = JOptionPane.showOptionDialog(
+                null,
+                "You Lose ! Would you like to play again or quit?",
+                "Game Over",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                gameOverIcon,
+                new Object[]{"Play Again", "Quit"},
+                "Play Again"
+            );
+            if (response == JOptionPane.YES_OPTION) {
+                newPartie(gui.getLevelComboBox().getSelectedIndex());
+            } else {
+                quit();
+            }
         }
     }
 
@@ -178,17 +94,12 @@ public class App extends JFrame  {
         {
             gui.propagation(x, y);
         } else { // envoyer x et y au serveur
-            try {
-                out.writeUTF("cord");
-                out.writeUTF(String.valueOf(x));
-                out.writeUTF(String.valueOf(y));
-            } catch (UnknownHostException e) {
-                System.out.println("Inconnue");
-            } catch (IOException e) {
-                e.printStackTrace();
+            networkManager.sendMoveOnline(x, y);
             }
-        }
-       
+    }
+
+    public void revealCaseOnline(int x, int y) {
+        gui.revealCase(x, y);
     }
 
     public void winGame() {
@@ -223,5 +134,22 @@ public class App extends JFrame  {
 
     public int getCurrentLevel() {
         return gui.getLevelComboBox().getSelectedIndex();
+    }
+
+      /**
+     * Quit the application.
+     */
+    public void quit() {
+        System.exit(0);
+    }
+
+    public void connect() {
+        try {
+            networkManager = new NetworkManager(this);
+            networkManager.connect("localhost", 1234);;
+            networkManager.auth("Antoine");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -7,10 +7,10 @@ public class Serveur {
     // Liste pour stocker les clients connectés
     private static List<ClientHandler> clients = new ArrayList<>();
     public static Champ champ = new Champ();
-    public static Level level = Level.MEDIUM;
+    public static Level level = Level.EASY;
 
     public Serveur() {
-        champ.init(1);
+        champ.init(level.ordinal());
         System.out.println("Champ initialisé du serveur");
         champ.display();
         System.out.println("Serveur starting on 1234");
@@ -65,6 +65,16 @@ public class Serveur {
                             String x = entree.readUTF();
                             String y = entree.readUTF();
                             System.out.println(nomJoueur + " : " + x + " " + y);
+
+                            if(champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
+                                System.out.println("Serveur : " + nomJoueur + " a perdu");
+                            } else {
+                                broadcastMessage("revealCase");
+                                broadcastMessage(x);
+                                broadcastMessage(y);
+                                System.out.println("Serveur : " + nomJoueur + " a cliqué sur " + x + " " + y);
+                            }
+                            
                             break;
                         case "auth":
                             nomJoueur = entree.readUTF();
@@ -79,13 +89,13 @@ public class Serveur {
                             String i = entree.readUTF();
                             String j = entree.readUTF();
                             sortie.writeBoolean(champ.isMine(Integer.parseInt(i), Integer.parseInt(j)));
-                            System.out.println(nomJoueur + "is Mine pour les cases : " + i + " " + j);
+                            //System.out.println(nomJoueur + "is Mine pour les cases : " + i + " " + j);
                             break;
                         case "nbMinesaround":
                             String x1 = entree.readUTF();
                             String y1 = entree.readUTF();
                             sortie.writeInt(champ.nbMinesaround(Integer.parseInt(x1), Integer.parseInt(y1)));
-                            System.out.println(nomJoueur + "nbMinesAround : " + x1 + " " + y1);
+                            //System.out.println(nomJoueur + "nbMinesAround : " + x1 + " " + y1);
                             break;
                         case "exit":
                             connected = false;
@@ -103,4 +113,16 @@ public class Serveur {
             }
         }
     }
+
+    public static void broadcastMessage(String message) {
+        for (ClientHandler client : clients) {
+            try {
+                client.sortie.writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    
 }

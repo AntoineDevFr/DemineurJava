@@ -14,7 +14,8 @@ public class Gui extends JPanel implements ActionListener {
     private JButton buttonQuit, buttonNew;
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
-    private JPanel panelNorth;
+    private JPanel panelNorth, panelSouth; 
+    private int indexLevel;
 
     private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
     private final int[] tabNbMines = {3, 7, 20, 0};
@@ -84,7 +85,7 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     private void initializeSouthPanel() {
-        JPanel panelSouth = new JPanel();
+        panelSouth = new JPanel();
         panelSouth.setBackground(new Color(43, 43, 43));
 
         buttonQuit = new JButton("Quit");
@@ -137,6 +138,7 @@ public class Gui extends JPanel implements ActionListener {
         revealedCases = 0;
         if(app.online) {
             panelNorth.remove(levelComboBox);
+            panelSouth.remove(buttonNew);
         }
         updateMinesPanel(indexLevel);
         app.pack();
@@ -151,6 +153,7 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void updateMinesPanel(int indexLevel) {
+        this.indexLevel = indexLevel;
         int sizeNewChamp = tabSize[indexLevel];
         champCases = new Case[sizeNewChamp][sizeNewChamp];
 
@@ -165,6 +168,8 @@ public class Gui extends JPanel implements ActionListener {
             }
         }
         
+        //displayChampInfo();
+
         panelMines.setBackground(Color.LIGHT_GRAY);
         //panelMines.revalidate(); 
         panelMines.repaint();
@@ -186,17 +191,35 @@ public class Gui extends JPanel implements ActionListener {
                 }
             }
         } else {
-            if (app.isMineOnline(i, j)) {
+            if (app.networkManager.isMineOnline(i, j)) {
                 casePanel.setMine(true);
             } else {
-                int minesAround = app.nbMinesaroundOnline(i, j);
+                int minesAround = app.networkManager.nbMinesaroundOnline(i, j);
                 if (minesAround != 0) {
                     casePanel.setNbMinesAround(String.valueOf(minesAround));
                 }
             }
+
         }
         return casePanel;
     }
+
+    public void displayChampInfo() {
+        for (int i = 0; i < tabSize[indexLevel]; i++) {
+            for (int j = 0; j < tabSize[indexLevel]; j++) {
+                Case currentCase = champCases[i][j];
+                if (currentCase.getIsMine()) {
+                    System.out.print("X ");
+                } else if (currentCase.getNbMinesAround().isEmpty()) {
+                    System.out.print("0 ");
+                } else {
+                    System.out.print(currentCase.getNbMinesAround() + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
 
     public JComboBox<Level> getLevelComboBox() {
         return levelComboBox;
@@ -214,8 +237,8 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void revealedCases() {
-        for (int i = 0; i < champ.getWidth(); i++) {
-            for (int j = 0; j < champ.getHeight(); j++) {
+        for (int i = 0; i < tabSize[indexLevel]; i++) {
+            for (int j = 0; j < tabSize[indexLevel]; j++) {
                 champCases[i][j].setFill(false);
                 champCases[i][j].setFlag(false);
                 champCases[i][j].repaint();
@@ -250,5 +273,11 @@ public class Gui extends JPanel implements ActionListener {
                 }
             }
         }
+    }
+
+    public void revealCase(int x, int y) {
+        champCases[x][y].setFill(false);
+        champCases[x][y].setFlag(false);
+        champCases[x][y].repaint();
     }
 }
