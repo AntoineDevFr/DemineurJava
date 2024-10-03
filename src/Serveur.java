@@ -8,6 +8,7 @@ public class Serveur {
     private static List<ClientHandler> clients = new ArrayList<>();
     public static Champ champ = new Champ();
     public static Level level = Level.EASY;
+    public static boolean champSuivis[][];
 
     private static int totalNonMineCasesOnline; 
     private static int revealedCasesOnline = 0;
@@ -19,6 +20,8 @@ public class Serveur {
 
     public Serveur() {
         champ.init(level.ordinal());
+        champSuivis = new boolean[tabSize[level.ordinal()]][tabSize[level.ordinal()]];
+        System.out.println(champSuivis.length);
         System.out.println("Champ initialisé du serveur");
         totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[level.ordinal()];
 
@@ -49,6 +52,7 @@ public class Serveur {
         totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[indexLevel];
         revealedCasesOnline = 0;
         champ.newPartie(indexLevel);
+        champSuivis = new boolean[tabSize[indexLevel]][tabSize[indexLevel]];
     }
 
     public static void main(String[] args) {
@@ -82,18 +86,23 @@ public class Serveur {
                             System.out.println("Serveur : Envoie des coordonnées");
                             String x = entree.readUTF();
                             String y = entree.readUTF();
-                            System.out.println(nomJoueur + " : " + x + " " + y);
 
-                            if (champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
-                                System.out.println("Serveur : " + nomJoueur + " a perdu");
+                            if (champSuivis[Integer.parseInt(x)][Integer.parseInt(y)]) {
+                                System.out.println("Serveur : " + nomJoueur + " a déjà cliqué sur cette case");
                             } else {
+                                champSuivis[Integer.parseInt(x)][Integer.parseInt(y)] = true;
                                 broadcastMessage("revealCase");
                                 broadcastMessage(x);
                                 broadcastMessage(y);
                                 System.out.println("Serveur : " + nomJoueur + " a cliqué sur " + x + " " + y);
+                                revealedCasesOnline++;
                             }
-                            revealedCasesOnline++;
-                            System.out.println("Serveur : " + revealedCasesOnline + " cases révélées");
+                            System.out.println(nomJoueur + " : " + x + " " + y);
+
+                            if (champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
+                                System.out.println("Serveur : " + nomJoueur + " a perdu");
+                            }
+
                             if (revealedCasesOnline == totalNonMineCasesOnline) {
                                 System.out.println("Serveur : Partie terminée");
                                 broadcastMessage("end");

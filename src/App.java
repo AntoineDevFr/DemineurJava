@@ -55,6 +55,8 @@ public class App extends JFrame  {
         try {
             champ.setCustomSize(Integer.parseInt(sizeInput));
             champ.setCustomNbMines(Integer.parseInt(minesInput));
+            gui.setCustomSize(Integer.parseInt(sizeInput));
+            gui.setCustomNbMines(Integer.parseInt(minesInput));
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter numeric values.");
         }
@@ -94,10 +96,12 @@ public class App extends JFrame  {
         {
             gui.propagation(x, y);
         } else { // envoyer x et y au serveur
-            gui.scoreOnline++;
-            gui.updateScoreValue();
-            networkManager.sendMoveOnline(x, y);
+            if (!gui.champCases[x][y].getIsMine() && gui.champCases[x][y].getIsFill()) {
+                gui.scoreOnline++;
+                gui.updateScoreValue();
+                networkManager.sendMoveOnline(x, y);
             }
+        }
     }
 
     public void revealCaseOnline(int x, int y) {

@@ -20,6 +20,8 @@ public class Gui extends JPanel implements ActionListener {
     private int indexLevel;
     public boolean startgame = false;
 
+    private int customSize;
+    private int customNbMines;
     private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
     private final int[] tabNbMines = {3, 7, 20, 0};
 
@@ -140,9 +142,14 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void newPartie(int indexLevel) {
+        tabSize[3] = customSize;
+        tabNbMines[3] = customNbMines;
+
         compteur.stop();
         compteur.reset();
         compteur.start();
+        scoreOnline = 0;
+        updateScoreValue();
         revealedCases = 0;
         updateMinesPanel(indexLevel);
         app.pack();
@@ -336,5 +343,13 @@ public class Gui extends JPanel implements ActionListener {
         champCases[x][y].setFill(false);
         champCases[x][y].setFlag(false);
         champCases[x][y].repaint();
+    }
+
+    public void setCustomSize(int int1) {
+        this.customSize = int1;
+    }
+
+    public void setCustomNbMines(int int1) {
+        this.customNbMines = int1;
     }
 }
