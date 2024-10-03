@@ -94,6 +94,8 @@ public class App extends JFrame  {
         {
             gui.propagation(x, y);
         } else { // envoyer x et y au serveur
+            gui.scoreOnline++;
+            gui.updateScoreValue();
             networkManager.sendMoveOnline(x, y);
             }
     }
@@ -103,9 +105,31 @@ public class App extends JFrame  {
     }
 
     public void winGame() {
-        gui.revealedCases();
-        gui.stopTimer();
-        showWinDialog();
+        if (online) {
+            gui.revealedCases();
+            Icon winIcon = new ImageIcon("./src/resources/you-win.png");
+            int response = JOptionPane.showOptionDialog(
+            this,
+            "End of the game, you finsihed with " + gui.scoreOnline + "points! Would you like to play again or quit?",
+            "End of the game",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            winIcon,
+            new Object[]{"Play Again", "Quit"},
+            "Play Again"
+        );
+
+        if (response == JOptionPane.YES_OPTION) {
+            networkManager.newGame();
+        } else {
+            quit();
+        }
+
+        } else {
+            gui.revealedCases();
+            gui.stopTimer();
+            showWinDialog();
+        }
     }
 
     private void showWinDialog() {

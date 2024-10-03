@@ -9,9 +9,19 @@ public class Serveur {
     public static Champ champ = new Champ();
     public static Level level = Level.EASY;
 
+    private static int totalNonMineCasesOnline; 
+    private static int revealedCasesOnline = 0;
+    private static int nbJoeursWantStart = 0;
+    private static int wantReplay = 0;
+
+    private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
+    private final int[] tabNbMines = {3, 7, 20, 0};
+
     public Serveur() {
         champ.init(level.ordinal());
         System.out.println("Champ initialisé du serveur");
+        totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[level.ordinal()];
+
         champ.display();
         System.out.println("Serveur starting on 1234");
         try {
@@ -27,17 +37,18 @@ public class Serveur {
                     ClientHandler clientHandler = new ClientHandler(socket);
                     clients.add(clientHandler); // Ajouter le client à la liste
                     new Thread(clientHandler).start(); // Démarrer le thread
-                } else {
-                    System.out.println("Nombre maximum de joueurs atteint. Connexion refusée.");
-                    // Refuser les nouvelles connexions
-                    Socket rejectedSocket = gestSock.accept();
-                    rejectedSocket.close();
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void newPartie(int indexLevel) {
+        totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[indexLevel];
+        revealedCasesOnline = 0;
+        champ.newPartie(indexLevel);
     }
 
     public static void main(String[] args) {
@@ -81,7 +92,12 @@ public class Serveur {
                                 broadcastMessage(y);
                                 System.out.println("Serveur : " + nomJoueur + " a cliqué sur " + x + " " + y);
                             }
-
+                            revealedCasesOnline++;
+                            System.out.println("Serveur : " + revealedCasesOnline + " cases révélées");
+                            if (revealedCasesOnline == totalNonMineCasesOnline) {
+                                System.out.println("Serveur : Partie terminée");
+                                broadcastMessage("end");
+                            }
                             break;
                         case "auth":
                             nomJoueur = entree.readUTF();
@@ -93,14 +109,25 @@ public class Serveur {
                             System.out.println("Serveur : Envoie du niveau de difficulté " + level.ordinal());
                             break;
                         case "isMine":
-                            String i = entree.readUTF();
-                            String j = entree.readUTF();
-                            sortie.writeBoolean(champ.isMine(Integer.parseInt(i), Integer.parseInt(j)));
+                            int i = entree.readInt();
+                            int j = entree.readInt();
+                            sortie.writeBoolean(champ.isMine(i,j));
                             break;
                         case "nbMinesaround":
-                            String x1 = entree.readUTF();
-                            String y1 = entree.readUTF();
-                            sortie.writeInt(champ.nbMinesaround(Integer.parseInt(x1), Integer.parseInt(y1)));
+                            int x1 = entree.readInt();
+                            int y1 = entree.readInt();
+                            sortie.writeInt(champ.nbMinesaround(x1, y1));
+                            break;
+                        case "newGame":
+                            wantReplay++;
+                            System.out.println("Serveur : " + nomJoueur + " veut rejouer");
+                            if (wantReplay < 2) {
+                                champ.newPartie(level.ordinal());
+                            }
+                            else if (wantReplay == 2) {
+                                wantReplay = 0;
+                            }
+                            sortie.writeInt(level.ordinal());
                             break;
                         case "exit":
                             connected = false;
@@ -111,7 +138,10 @@ public class Serveur {
                             clients.remove(this); // Retirer le client de la liste
                             break;
                         case "wantstart":
-                            if (clients.size() == 2) {
+                            System.out.println("Serveur : " + nomJoueur + " veut commencer");
+                            nbJoeursWantStart++;
+                            if (nbJoeursWantStart == 2) {
+                                nbJoeursWantStart = 0;
                                 broadcastMessage("start");
                             }
                             break;

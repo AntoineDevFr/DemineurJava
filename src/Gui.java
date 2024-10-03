@@ -27,6 +27,7 @@ public class Gui extends JPanel implements ActionListener {
     private Champ champ;
 
     public int score;
+    public int scoreOnline =0;
     private Compteur compteur;
 
     private int totalNonMineCases; 
@@ -50,7 +51,11 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void updateScoreValue() {
-        scoreValue.setText(String.valueOf(score));
+        if (app.online) {
+            scoreValue.setText(String.valueOf(scoreOnline));
+        } else {
+            scoreValue.setText(String.valueOf(score));
+        }
     }
 
     private void initializePanels() {
@@ -140,16 +145,20 @@ public class Gui extends JPanel implements ActionListener {
         compteur.start();
         revealedCases = 0;
         updateMinesPanel(indexLevel);
-        app.networkManager.startListening();
+        app.pack();
 
         if (app.online) {
+            app.networkManager.startListening();
             // Remove elements from the UI
             panelNorth.remove(levelComboBox);
             panelSouth.remove(buttonNew);
             menu.remove(mConnexion);
+            compteur.stop();
+            scoreValue.setText(String.valueOf(scoreOnline));
+
 
             // Create a waiting dialog
-            waitingDialog = new JDialog(app, "Waiting for Players", true);
+            waitingDialog = new JDialog(app, "Waitingq for Players", true);
             waitingDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             waitingDialog.setSize(200, 100);
             waitingDialog.setLocationRelativeTo(app);
@@ -157,6 +166,7 @@ public class Gui extends JPanel implements ActionListener {
             // Add a simple label to indicate waiting status
             JLabel waitingLabel = new JLabel("Waiting for other players ...", SwingConstants.CENTER);
             waitingDialog.add(waitingLabel);
+            System.out.println("J'envoie start");
             app.networkManager.sendStart();
             // Add a window listener to handle the dialog close event
             waitingDialog.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -187,7 +197,7 @@ public class Gui extends JPanel implements ActionListener {
         }
     
         // Continue with game setup
-        app.pack();
+       
     }
     
 

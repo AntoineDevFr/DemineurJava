@@ -35,12 +35,15 @@ public class NetworkManager {
         out.writeUTF("init");
         int level = in.readInt();
         System.out.println("Level : " + level);
+
+        //Lance une nouvelle partie en fonction du niveau
         app.gui.newPartie(level);
     } 
 
     public void sendStart() {
         try {
             out.writeUTF("wantstart");
+            System.out.println("Je veux commencer");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,8 +53,8 @@ public class NetworkManager {
         boolean response = false;
         try {
             out.writeUTF("isMine");
-            out.writeUTF(String.valueOf(i));
-            out.writeUTF(String.valueOf(j));
+            out.writeInt(i);
+            out.writeInt(j);
             response = in.readBoolean();
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,8 +67,8 @@ public class NetworkManager {
         int count = 0;
         try {
             out.writeUTF("nbMinesaround");
-            out.writeUTF(String.valueOf(i));
-            out.writeUTF(String.valueOf(j));
+            out.writeInt(i);
+            out.writeInt(j);
             count = in.readInt();
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,6 +87,17 @@ public class NetworkManager {
             // {
             //     app.revealCaseOnline(x, y);
             // }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void newGame() {
+        try {
+            out.writeUTF("newGame");
+            int level = in.readInt();
+            System.out.println("je veux refaire une partie avec le niveau: " + level);
+            app.gui.newPartie(level);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,6 +129,9 @@ public class NetworkManager {
                                 System.out.println("Je reçois start");
                                 app.gui.startgame = true;
                                 app.gui.waitingDialog.dispose();
+                                break;
+                            case "end":
+                                app.winGame();
                                 break;
                             default:
                                 break;
