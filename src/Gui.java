@@ -15,7 +15,7 @@ public class Gui extends JPanel implements ActionListener {
     JMenu menu;
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
-    private JPanel panelNorth, panelSouth; 
+    private JPanel panelNorth, panelSouth, panelWest; 
     public JDialog waitingDialog;
     private int indexLevel;
     public boolean startgame = false;
@@ -112,7 +112,7 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     private void initializeWestPanel() {
-        JPanel panelWest = new JPanel();
+        panelWest = new JPanel();
         panelWest.setBackground(new Color(43, 43, 43));
         JLabel labelUsers = new JLabel("Users connected : ");
         labelUsers.setForeground(Color.WHITE);
@@ -144,6 +144,7 @@ public class Gui extends JPanel implements ActionListener {
     public void newPartie(int indexLevel) {
         tabSize[3] = customSize;
         tabNbMines[3] = customNbMines;
+        app.isWaiting = false;
 
         compteur.stop();
         compteur.reset();
@@ -164,13 +165,12 @@ public class Gui extends JPanel implements ActionListener {
             scoreValue.setText(String.valueOf(scoreOnline));
 
 
-            // Create a waiting dialog
+           
             waitingDialog = new JDialog(app, "Waitingq for Players", true);
             waitingDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             waitingDialog.setSize(200, 100);
             waitingDialog.setLocationRelativeTo(app);
     
-            // Add a simple label to indicate waiting status
             JLabel waitingLabel = new JLabel("Waiting for other players ...", SwingConstants.CENTER);
             waitingDialog.add(waitingLabel);
             System.out.println("J'envoie start");
@@ -228,6 +228,7 @@ public class Gui extends JPanel implements ActionListener {
         for (int i = 0; i < sizeNewChamp; i++) {
             for (int j = 0; j < sizeNewChamp; j++) {
                 champCases[i][j] = createCasePanel(i, j);
+                champCases[i][j].clickEnabler = true;
                 panelMines.add(champCases[i][j]);
             }
         }
@@ -310,6 +311,16 @@ public class Gui extends JPanel implements ActionListener {
         }
     }
 
+    public void hideCases() {
+        for (int i = 0; i < tabSize[indexLevel]; i++) {
+            for (int j = 0; j < tabSize[indexLevel]; j++) {
+                champCases[i][j].setFill(true);
+                champCases[i][j].setFlag(false);
+                champCases[i][j].repaint();
+            }
+        }
+    }
+
     public void propagation(int x, int y) {
         if (x >= 0 && x < champ.getWidth() && y >= 0 && y < champ.getHeight()) { //Check if the case is in the field
             Case currentCase = champCases[x][y];
@@ -352,4 +363,13 @@ public class Gui extends JPanel implements ActionListener {
     public void setCustomNbMines(int int1) {
         this.customNbMines = int1;
     }
+
+    public void disableCases() {
+        for (int i = 0; i < tabSize[indexLevel]; i++) {
+            for (int j = 0; j < tabSize[indexLevel]; j++) {
+                champCases[i][j].clickEnabler = false;
+            }
+        }
+    }
+
 }

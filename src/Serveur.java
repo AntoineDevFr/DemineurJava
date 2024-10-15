@@ -9,14 +9,17 @@ public class Serveur {
     public static Champ champ = new Champ();
     public static Level level = Level.EASY;
     public static boolean champSuivis[][];
+    public static int nbJoeur = 2;
 
     private static int totalNonMineCasesOnline; 
     private static int revealedCasesOnline = 0;
     private static int nbJoeursWantStart = 0;
     private static int wantReplay = 0;
 
-    private final int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
-    private final int[] tabNbMines = {3, 7, 20, 0};
+    private final static int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
+    private final static int[] tabNbMines = {3, 7, 20, 0};
+   
+    private final static String[] namePlayers = new String[nbJoeur];
 
     public Serveur() {
         champ.init(level.ordinal());
@@ -32,7 +35,7 @@ public class Serveur {
 
             while (true) {
                 // Vérifier s'il y a déjà 2 clients connectés
-                if (clients.size() < 2) {
+                if (clients.size() < nbJoeur) {
                     Socket socket = gestSock.accept();
                     System.out.println("Nouveau client connecté");
 
@@ -48,7 +51,7 @@ public class Serveur {
         }
     }
 
-    public void newPartie(int indexLevel) {
+    public static void newPartie(int indexLevel) {
         totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[indexLevel];
         revealedCasesOnline = 0;
         champ.newPartie(indexLevel);
@@ -56,7 +59,9 @@ public class Serveur {
     }
 
     public static void main(String[] args) {
+        System.out.println("Serveur started");
         new Serveur();
+   
     }
 
     // Classe interne pour gérer chaque client
@@ -111,7 +116,8 @@ public class Serveur {
                         case "auth":
                             nomJoueur = entree.readUTF();
                             System.out.println("Serveur : " + nomJoueur + " connecté");
-                            sortie.writeInt(clients.size());
+                            namePlayers[clients.size()-1] = nomJoueur;
+                            sortie.writeInt(clients.size()-1);
                             break;
                         case "init":
                             sortie.writeInt(level.ordinal());
@@ -130,13 +136,16 @@ public class Serveur {
                         case "newGame":
                             wantReplay++;
                             System.out.println("Serveur : " + nomJoueur + " veut rejouer");
-                            if (wantReplay < 2) {
-                                champ.newPartie(level.ordinal());
-                            }
-                            else if (wantReplay == 2) {
+                            //if (wantReplay < nbJoeur) {
+                                //newPartie(level.ordinal());
+                           // }
+                            if (wantReplay == nbJoeur) {
+                                newPartie(level.ordinal());
                                 wantReplay = 0;
+                                broadcastMessage("newchamp");
+                                broadcastMessage(Integer.toString(level.ordinal()));
                             }
-                            sortie.writeInt(level.ordinal());
+                            
                             break;
                         case "exit":
                             connected = false;
@@ -149,7 +158,7 @@ public class Serveur {
                         case "wantstart":
                             System.out.println("Serveur : " + nomJoueur + " veut commencer");
                             nbJoeursWantStart++;
-                            if (nbJoeursWantStart == 2) {
+                            if (nbJoeursWantStart == nbJoeur) {
                                 nbJoeursWantStart = 0;
                                 broadcastMessage("start");
                             }

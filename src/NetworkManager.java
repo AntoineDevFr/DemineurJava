@@ -25,7 +25,7 @@ public class NetworkManager {
     public void auth(String namePlayer) throws IOException
     {
         out.writeUTF("auth");
-        out.writeUTF("Antoine");
+        out.writeUTF(app.playerName);
 
         int numJoueur = in.readInt(); 
 
@@ -95,9 +95,9 @@ public class NetworkManager {
     public void newGame() {
         try {
             out.writeUTF("newGame");
-            int level = in.readInt();
-            System.out.println("je veux refaire une partie avec le niveau: " + level);
-            app.gui.newPartie(level);
+            //int level = in.readInt();
+            //System.out.println("je veux refaire une partie avec le niveau: " + level);
+            //app.gui.newPartie(level);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -123,12 +123,18 @@ public class NetworkManager {
                             case "revealCase":
                                 int x = Integer.parseInt(in.readUTF());  // Assuming the server sends coordinates
                                 int y = Integer.parseInt(in.readUTF());
-                                app.revealCaseOnline(x, y);
+                                if (!app.isWaiting) {
+                                    app.revealCaseOnline(x, y);
+                                }
                                 break;
                             case "start" :
                                 System.out.println("Je reçois start");
                                 app.gui.startgame = true;
                                 app.gui.waitingDialog.dispose();
+                                break;
+                            case "newchamp":
+                                int level = Integer.parseInt(in.readUTF());
+                                app.gui.newPartie(level);
                                 break;
                             case "end":
                                 app.winGame();

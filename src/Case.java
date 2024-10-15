@@ -22,6 +22,7 @@ public class Case extends JPanel implements MouseListener {
     private boolean isMine = false;
     private boolean isFill = true;
     private boolean flag = false;
+    public boolean clickEnabler = true;
     private String nbMinesAround = "";
     
     private int x;
@@ -143,17 +144,19 @@ public class Case extends JPanel implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            if (isMine) {
-                app.gameOver();
-            } else {
-                app.propagation(x, y);
-            }
-            repaint();
-        } else if (SwingUtilities.isRightMouseButton(e)) {
-            if (isFill || flag) {
-                flag = !flag;
+        if(clickEnabler) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                if (isMine) {
+                    app.gameOver();
+                } else {
+                    app.propagation(x, y);
+                }
                 repaint();
+            } else if (SwingUtilities.isRightMouseButton(e)) {
+                if (isFill || flag) {
+                    flag = !flag;
+                    repaint();
+                }
             }
         }
     }
