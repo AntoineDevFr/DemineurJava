@@ -16,6 +16,7 @@ public class App extends JFrame  {
     public boolean online = false;
     public boolean isWaiting = false;
     public String playerName;
+    
 
     public App() {
         super("Minesweeper");
@@ -131,6 +132,9 @@ public class App extends JFrame  {
 
         if (response == JOptionPane.YES_OPTION) {
             networkManager.newGame();
+            gui.hideCases();
+            gui.disableCases();
+            isWaiting = true;
         } else {
             quit();
         }

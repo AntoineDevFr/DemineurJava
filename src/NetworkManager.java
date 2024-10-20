@@ -8,6 +8,7 @@ public class NetworkManager {
     private DataOutputStream out;
     private DataInputStream in;
     private App app;
+    private int nbJoeurs;
 
     public NetworkManager(App app){
         this.app = app;
@@ -28,6 +29,7 @@ public class NetworkManager {
         out.writeUTF(app.playerName);
 
         int numJoueur = in.readInt(); 
+        nbJoeurs = in.readInt();
 
         System.out.println("Joueur n°:"+numJoueur); 
         System.out.println("Connecté au serveur");
@@ -135,6 +137,14 @@ public class NetworkManager {
                             case "newchamp":
                                 int level = Integer.parseInt(in.readUTF());
                                 app.gui.newPartie(level);
+                                break;
+                            case "namesPlayers":
+                                String[] playersName = new String[nbJoeurs];
+                                for (int i = 0; i < nbJoeurs; i++) {
+                                    playersName[i] = in.readUTF();
+                                    System.out.println("Je recois: le nom de "+playersName[i]);
+                                }
+                                app.gui.addPlayers(playersName);
                                 break;
                             case "end":
                                 app.winGame();

@@ -15,11 +15,12 @@ public class Serveur {
     private static int revealedCasesOnline = 0;
     private static int nbJoeursWantStart = 0;
     private static int wantReplay = 0;
+    private static String[] playersName;
+    private static boolean firstStart = true;
 
     private final static int[] tabSize = {5, 10, 15, 0};  // Last element is for CUSTOM
     private final static int[] tabNbMines = {3, 7, 20, 0};
    
-    private final static String[] namePlayers = new String[nbJoeur];
 
     public Serveur() {
         champ.init(level.ordinal());
@@ -27,6 +28,7 @@ public class Serveur {
         System.out.println(champSuivis.length);
         System.out.println("Champ initialisé du serveur");
         totalNonMineCasesOnline = champ.getWidth() * champ.getHeight() - tabNbMines[level.ordinal()];
+        playersName = new String[nbJoeur];
 
         champ.display();
         System.out.println("Serveur starting on 1234");
@@ -116,8 +118,9 @@ public class Serveur {
                         case "auth":
                             nomJoueur = entree.readUTF();
                             System.out.println("Serveur : " + nomJoueur + " connecté");
-                            namePlayers[clients.size()-1] = nomJoueur;
+                            playersName[clients.size()-1] = nomJoueur;
                             sortie.writeInt(clients.size()-1);
+                            sortie.writeInt(nbJoeur);
                             break;
                         case "init":
                             sortie.writeInt(level.ordinal());
@@ -161,6 +164,14 @@ public class Serveur {
                             if (nbJoeursWantStart == nbJoeur) {
                                 nbJoeursWantStart = 0;
                                 broadcastMessage("start");
+
+                                if (firstStart) {
+                                    firstStart = false;
+                                    broadcastMessage("namesPlayers");
+                                    for (int k = 0; k < nbJoeur; k++) {
+                                        broadcastMessage(playersName[k]);
+                                    }
+                                }
                             }
                             break;
                         default:

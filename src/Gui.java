@@ -16,6 +16,7 @@ public class Gui extends JPanel implements ActionListener {
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
     private JPanel panelNorth, panelSouth, panelWest; 
+    private JLabel levLabel;
     public JDialog waitingDialog;
     private int indexLevel;
     public boolean startgame = false;
@@ -50,6 +51,7 @@ public class Gui extends JPanel implements ActionListener {
         setLayout(new BorderLayout());
         initializePanels();
         initializeMenu();
+
     }
 
     public void updateScoreValue() {
@@ -78,7 +80,7 @@ public class Gui extends JPanel implements ActionListener {
 
         JLabel scoreLabel = new JLabel("Score : ");
         scoreLabel.setForeground(Color.WHITE);
-        JLabel levLabel = new JLabel("Level : ");
+        levLabel = new JLabel("Level : ");
         levLabel.setForeground(Color.WHITE);
         scoreValue.setForeground(Color.CYAN);
 
@@ -114,13 +116,25 @@ public class Gui extends JPanel implements ActionListener {
     private void initializeWestPanel() {
         panelWest = new JPanel();
         panelWest.setBackground(new Color(43, 43, 43));
+        panelWest.setLayout(new BoxLayout(panelWest, BoxLayout.Y_AXIS));
         JLabel labelUsers = new JLabel("Users connected : ");
         labelUsers.setForeground(Color.WHITE);
         panelWest.add(labelUsers);
-
-
+        JLabel space = new JLabel(" ");
+        panelWest.add(space);
         add(panelWest, BorderLayout.WEST);
     }
+
+    public void addPlayers(String[] players) {
+        for (String player : players) {
+            JLabel playerLabel = new JLabel(player);
+            playerLabel.setForeground(Color.WHITE);
+            panelWest.add(playerLabel);
+        }
+        panelWest.revalidate();  // Réactualise le panel après l'ajout des joueurs
+        panelWest.repaint();     // Redessine le panel pour afficher les changements
+    }
+
     private void initializeMenu() {
         JMenuBar menuBar = new JMenuBar();
         menu = new JMenu("Options");
@@ -159,11 +173,17 @@ public class Gui extends JPanel implements ActionListener {
             app.networkManager.startListening();
             // Remove elements from the UI
             panelNorth.remove(levelComboBox);
+            panelNorth.remove(levLabel);
             panelSouth.remove(buttonNew);
             menu.remove(mConnexion);
             compteur.stop();
             scoreValue.setText(String.valueOf(scoreOnline));
-
+            levLabel = new JLabel("Player :  ");
+            levLabel.setForeground(Color.WHITE);
+            panelNorth.add(levLabel);
+            JLabel player = new JLabel(app.playerName);
+            player.setForeground(Color.WHITE);
+            panelNorth.add(player);
 
            
             waitingDialog = new JDialog(app, "Waitingq for Players", true);
@@ -183,6 +203,11 @@ public class Gui extends JPanel implements ActionListener {
                     app.online = false; // Switch back to solo mode
                     app.networkManager.exit();
                     startgame = true; // Exit the waiting loop
+                    panelNorth.remove(levLabel);
+                    panelNorth.remove(player);
+                    levLabel = new JLabel("Level : ");
+                    levLabel.setForeground(Color.WHITE);
+                    panelNorth.add(levLabel);
                     panelNorth.add(levelComboBox);
                     panelSouth.add(buttonNew);
                     menu.add(mConnexion);
@@ -190,6 +215,7 @@ public class Gui extends JPanel implements ActionListener {
                     compteur.reset();
                     compteur.start();
                     revealedCases = 0;
+                    
                 }
             });
     
@@ -371,5 +397,4 @@ public class Gui extends JPanel implements ActionListener {
             }
         }
     }
-
 }
