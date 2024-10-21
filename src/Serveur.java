@@ -16,6 +16,7 @@ public class Serveur {
     public static Level level = Level.EASY; // Niveau de difficulté initial
     public static boolean champSuivis[][]; // Tableau pour suivre les cases révélées
     public static int nbJoeur = 2; // Nombre de joueurs (fixé à 2)
+    private ServerSocket gestSock; // Socket pour gérer les connexions
 
     // Variables pour suivre l'état du jeu
     private static int totalNonMineCasesOnline; // Nombre total de cases sans mines
@@ -43,7 +44,7 @@ public class Serveur {
         champ.display();
         System.out.println("Serveur starting on 1234");
         try {
-            ServerSocket gestSock = new ServerSocket(1234);
+            gestSock = new ServerSocket(1234);
 
             while (true) {
                 // Accepter les connexions tant que le nombre de joueurs est inférieur à la limite
@@ -221,6 +222,14 @@ public class Serveur {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void closeServeur(){
+        try {
+            gestSock.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
