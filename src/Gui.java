@@ -382,10 +382,12 @@ public class Gui extends JPanel implements ActionListener {
         }
     }
 
-    public void revealCase(int x, int y) {
+    public synchronized void revealCase(int x, int y) {
+        System.out.println("Reveal case " + x + " " + y);
         champCases[x][y].setFill(false);
         champCases[x][y].setFlag(false);
         champCases[x][y].repaint();
+        repaint();
     }
 
     public void setCustomSize(int int1) {

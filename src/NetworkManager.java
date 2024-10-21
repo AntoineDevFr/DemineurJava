@@ -82,8 +82,8 @@ public class NetworkManager {
     {
         try {
             out.writeUTF("cord");
-            out.writeUTF(String.valueOf(x));
-            out.writeUTF(String.valueOf(y));
+            out.writeInt(x);
+            out.writeInt(y);
 
             // if(in.readUTF().equals("revealCase"))
             // {
@@ -115,7 +115,7 @@ public class NetworkManager {
         }
     }
 
-    public void startListening() {
+    public synchronized void startListening() {
         Thread listenerThread = new Thread(() -> {
             try {
                 while (!sock.isClosed()) {  // Check if the socket is still open
@@ -124,9 +124,12 @@ public class NetworkManager {
                         
                         switch (message) {
                             case "revealCase":
-                                int x = Integer.parseInt(in.readUTF());  // Assuming the server sends coordinates
-                                int y = Integer.parseInt(in.readUTF());
+                                System.out.println("Je reçois revealCase");
+                                int x = in.readInt();  // Assuming the server sends coordinates
+                                int y = in.readInt();
+                                System.out.println("Je reçois les coordonnées: x = " + x + ", y = " + y);
                                 if (!app.isWaiting) {
+                                    System.out.println("Je révèle la case");
                                     app.revealCaseOnline(x, y);
                                 }
                                 break;

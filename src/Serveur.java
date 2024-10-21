@@ -91,22 +91,22 @@ public class Serveur {
                     switch (message) {
                         case "cord":
                             System.out.println("Serveur : Envoie des coordonnées");
-                            String x = entree.readUTF();
-                            String y = entree.readUTF();
+                            int x = entree.readInt();
+                            int y = entree.readInt();
 
-                            if (champSuivis[Integer.parseInt(x)][Integer.parseInt(y)]) {
+                            if (champSuivis[x][y]) {
                                 System.out.println("Serveur : " + nomJoueur + " a déjà cliqué sur cette case");
                             } else {
-                                champSuivis[Integer.parseInt(x)][Integer.parseInt(y)] = true;
+                                champSuivis[x][y] = true;
                                 broadcastMessage("revealCase");
-                                broadcastMessage(x);
-                                broadcastMessage(y);
+                                broadcastMessageInt(x);
+                                broadcastMessageInt(y);
                                 System.out.println("Serveur : " + nomJoueur + " a cliqué sur " + x + " " + y);
                                 revealedCasesOnline++;
                             }
                             System.out.println(nomJoueur + " : " + x + " " + y);
 
-                            if (champ.isMine(Integer.parseInt(x), Integer.parseInt(y))) {
+                            if (champ.isMine(x,y)) {
                                 System.out.println("Serveur : " + nomJoueur + " a perdu");
                             }
 
@@ -188,10 +188,20 @@ public class Serveur {
 
     }
 
-    public static void broadcastMessage(String message) {
+    public synchronized static void broadcastMessage(String message) {
         for (ClientHandler client : clients) {
             try {
                 client.sortie.writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public synchronized static void broadcastMessageInt(int message) {
+        for (ClientHandler client : clients) {
+            try {
+                client.sortie.writeInt(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
