@@ -157,6 +157,9 @@ public class Serveur {
                             entree.close();
                             socket.close();
                             clients.remove(this); // Retirer le client de la liste
+                            System.out.println("Serveur : " + nomJoueur + " déconnecté");
+                            nbJoeursWantStart --;
+                            wantReplay--;
                             break;
                         case "wantstart":
                             System.out.println("Serveur : " + nomJoueur + " veut commencer");

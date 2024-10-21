@@ -16,10 +16,11 @@ public class Gui extends JPanel implements ActionListener {
     private JMenuItem mQuitter, mNewPartie, mConnexion; 
     private JComboBox<Level> levelComboBox;
     private JPanel panelNorth, panelSouth, panelWest; 
-    private JLabel levLabel;
+    private JLabel levLabel, player;
     public JDialog waitingDialog;
     private int indexLevel;
     public boolean startgame = false;
+    private boolean namePlayerOnScreen = false;
 
     private int customSize;
     private int customNbMines;
@@ -178,13 +179,17 @@ public class Gui extends JPanel implements ActionListener {
             menu.remove(mConnexion);
             compteur.stop();
             scoreValue.setText(String.valueOf(scoreOnline));
-            levLabel = new JLabel("Player :  ");
-            levLabel.setForeground(Color.WHITE);
-            panelNorth.add(levLabel);
-            JLabel player = new JLabel(app.playerName);
-            player.setForeground(Color.WHITE);
-            panelNorth.add(player);
+            if(!namePlayerOnScreen){
+                levLabel = new JLabel("Player :  ");
+                levLabel.setForeground(Color.WHITE);
+                panelNorth.add(levLabel);
+                player = new JLabel(app.playerName);
+                player.setForeground(Color.WHITE);
+                panelNorth.add(player);
+                namePlayerOnScreen = true;
+            }
 
+            
            
             waitingDialog = new JDialog(app, "Waitingq for Players", true);
             waitingDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -215,7 +220,8 @@ public class Gui extends JPanel implements ActionListener {
                     compteur.reset();
                     compteur.start();
                     revealedCases = 0;
-                    
+                    namePlayerOnScreen = false;
+                    app.networkManager.exit();
                 }
             });
     

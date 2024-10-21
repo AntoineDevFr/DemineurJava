@@ -108,6 +108,7 @@ public class NetworkManager {
     public void exit() {
         try {
             out.writeUTF("exit");
+
             sock.close();
         } catch (IOException e) {
             e.printStackTrace();

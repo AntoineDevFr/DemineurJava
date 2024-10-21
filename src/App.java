@@ -111,7 +111,7 @@ public class App extends JFrame  {
         }
     }
 
-    public void revealCaseOnline(int x, int y) {
+    public synchronized void revealCaseOnline(int x, int y) {
         gui.revealCase(x, y);
     }
 
